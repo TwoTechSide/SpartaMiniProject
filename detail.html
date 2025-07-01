@@ -3,9 +3,135 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>클래스 부트캠프 팀</title>
+    <!-- Bootstrap CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- jQuery CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- Bootstrap Bundle JS CDN (Popper.js 포함) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
   </head>
-  <body>
-    <!--  -->
+
+  <body class="min-vh-100 bg-light d-flex flex-column">
+    <main>
+      <!-- 팀원 소개 페이지 섹션 -->
+      <section
+        id="teamPage"
+        class="page-section bg-white p-4 p-md-5 rounded-3 shadow-sm d-flex flex-column align-items-center"
+      >
+        <h2 class="display-5 fw-bold text-dark mb-5 text-center">팀원 소개</h2>
+
+        <!-- 현재 선택된 팀원 상세 소개 섹션 -->
+        <div id="teamMemberDetailSection" class="w-100 mb-5">
+          <div
+            id="memberDetailContainer"
+            class="card shadow-lg border-0 rounded-3 p-4 p-md-5"
+          >
+            <div class="row g-4 align-items-center">
+              <div class="col-md-4 text-center">
+                <img
+                  id="member-img"
+                  src=""
+                  alt=""
+                  class="img-fluid rounded-circle border border-primary border-4 shadow-sm"
+                  style="width: 200px; height: 200px; object-fit: cover"
+                />
+              </div>
+              <div class="col-md-8">
+                <h3
+                  id="member-name"
+                  class="display-6 fw-bold text-primary mb-2"
+                ></h3>
+                <p
+                  id="member-role"
+                  class="fs-5 text-secondary fw-semibold mb-4"
+                ></p>
+
+                <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
+                  <div class="col">
+                    <div class="card h-100 bg-light border-0 rounded-3 p-3">
+                      <p class="fw-semibold text-info mb-1">MBTI</p>
+                      <p class="text-dark" id="member-mbti"></p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card h-100 bg-light border-0 rounded-3 p-3">
+                      <p class="fw-semibold text-info mb-1">한마디</p>
+                      <p class="text-dark" id="member-greeting"></p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card h-100 bg-light border-0 rounded-3 p-3">
+                      <p class="fw-semibold text-info mb-1">특기와 취미</p>
+                      <p class="text-dark" id="member-skillsHobbies"></p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card h-100 bg-light border-0 rounded-3 p-3">
+                      <p class="fw-semibold text-info mb-1">장점과 단점</p>
+                      <p class="text-dark" id="member-strengthsWeaknesses"></p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card h-100 bg-light border-0 rounded-3 p-3">
+                      <p class="fw-semibold text-info mb-1">
+                        좋아하는 것과 싫어하는 것
+                      </p>
+                      <p class="text-dark" id="member-likesDislikes"></p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card h-100 bg-light border-0 rounded-3 p-3">
+                      <p class="fw-semibold text-info mb-1">타이틀 노래</p>
+                      <p class="text-dark" id="member-titleSong"></p>
+                      <div id="member-titleImage-container" class="mt-2">
+                        <img
+                          id="member-titleImage"
+                          src=""
+                          alt=""
+                          class="img-fluid rounded-3 mx-auto"
+                          style="width: 80px; height: 80px; object-fit: cover"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="member-blogUrl-container" class="text-secondary mt-4">
+                  <strong class="fw-medium">개인 블로그:</strong>
+                  <a
+                    id="member-blogUrl"
+                    href=""
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="link-primary"
+                  ></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 팀원 슬라이더 섹션 -->
+        <section class="w-100 mb-5 p-4 border bg-light rounded-3">
+          <h3 class="h4 fw-bold text-dark mb-4 text-center">다른 팀원 보기</h3>
+          <div
+            class="d-flex overflow-auto pb-3"
+            id="teamMemberSlider"
+            style="gap: 1.5rem"
+          >
+            <!-- 팀원 슬라이더 항목들이 여기에 렌더링됩니다 -->
+          </div>
+        </section>
+      </section>
+    </main>
   </body>
 </html>
