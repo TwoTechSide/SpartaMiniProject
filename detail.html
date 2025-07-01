@@ -4,6 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>클래스 부트캠프 팀</title>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+      import { firebaseConfig } from "./firebase-config.js";
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app);
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const slider = document.getElementById("teamMemberSlider");
+
+        const qs = await getDocs(collection(db, "member"));
+        qs.forEach((doc) => {
+          const member = doc.data();
+
+          const item = document.createElement("div");
+          item.className = "slider-item";
+          item.innerHTML = `
+            <img src="${member.img}" alt="${member.name}" class="slider-img" />
+            <div class="slider-name">${member.name}</div>
+            <div class="slider-role">${member.mbti}</div>
+          `;
+          slider.appendChild(item);
+        });
+      });
+    </script>
     <style>
       body {
         min-height: 100vh;
@@ -166,6 +198,9 @@
         text-align: center;
         cursor: pointer;
         transition: box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       .slider-item:hover {
         box-shadow: 0 4px 16px rgba(67, 97, 238, 0.13);
@@ -177,6 +212,16 @@
         border-radius: 50%;
         border: 2px solid #4895ef;
         margin-bottom: 0.5rem;
+      }
+      .slider-name {
+        font-weight: bold;
+        color: #22223b;
+        margin-bottom: 0.2rem;
+        font-size: 1rem;
+      }
+      .slider-role {
+        color: #868e96;
+        font-size: 0.95rem;
       }
       @media (max-width: 700px) {
         .page-section {
@@ -195,6 +240,7 @@
       }
     </style>
   </head>
+
   <body>
     <main>
       <section class="page-section">
@@ -272,15 +318,15 @@
             </div>
           </div>
         </div>
+
         <!-- 팀원 슬라이더 섹션 -->
         <section class="slider-section">
           <h3 class="slider-title">다른 팀원 보기</h3>
           <div class="slider" id="teamMemberSlider">
-            <!-- 팀원 슬라이더 항목들이 여기에 렌더링됩니다 -->
+            <!-- 팀원 슬라이더의 항목들은 동적으로 추가 -->
           </div>
         </section>
       </section>
     </main>
-    <!-- JS는 기존과 동일하게 사용 가능 -->
   </body>
 </html>
