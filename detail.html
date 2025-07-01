@@ -18,13 +18,35 @@
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
 
+      /**
+       * 페이지가 로드되면 Firestore에서 팀원 정보를 가져와 슬라이더에 렌더링합니다.
+       */
       document.addEventListener("DOMContentLoaded", async () => {
-        const slider = document.getElementById("teamMemberSlider");
+        const members = await fetchMembers();
+        renderSlider(members);
+      });
 
+      /**
+       * Firestore에서 팀원 정보를 가져옵니다.
+       * @returns {Promise<Array>} 팀원 정보 배열
+       */
+      async function fetchMembers() {
         const qs = await getDocs(collection(db, "member"));
+        const members = [];
         qs.forEach((doc) => {
-          const member = doc.data();
+          members.push(doc.data());
+        });
+        return members;
+      }
 
+      /**
+       * 슬라이더에 팀원 정보를 렌더링합니다.
+       * @param {Array} members - 팀원 정보 배열
+       */
+      function renderSlider(members) {
+        const slider = document.getElementById("teamMemberSlider");
+        slider.innerHTML = "";
+        members.forEach((member) => {
           const item = document.createElement("div");
           item.className = "slider-item";
           item.innerHTML = `
@@ -34,7 +56,7 @@
           `;
           slider.appendChild(item);
         });
-      });
+      }
     </script>
     <style>
       body {
