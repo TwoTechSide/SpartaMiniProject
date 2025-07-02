@@ -60,80 +60,24 @@
       }
 
       async function getMember(selectedName, members) {
-        // const q = query(docs, where("name", "==", name));
-
-        // javascript array 고차함수인 filter를 사용하여 name과 일치하는 팀원 정보를 찾습니다.
+        // javascript array 고차함수인 filter를 사용하여 name과 일치하는 팀원 정보 찾기
         const member = members.filter((doc) => doc.name === selectedName)[0];
+          if (!member) {
+            alert("멤버를 찾을 수 없습니다.");
+            return;
+          }
 
-        let name = member["name"];
-        let mbti = member["mbti"];
-        let title = member["title"];
-        let spec = member["spec"];
-        let hobby = member["hobby"];
-        let pros = member["pros"];
-        let cons = member["cons"];
-        let like = member["like"];
-        let hate = member["hate"];
-        let song = member["song"];
-        let img = member["img"];
-        let blog = member["blog"];
-
-        let card_html = `<div class="row">
-          <div class="col-img">
-            <img
-              id="member-img"
-              src="${img}"
-              alt=""
-              class="rounded-circle border-primary shadow-sm"
-              style="width: 200px; height: 200px; object-fit: cover"
-            />
-          </div>
-          <div class="col-info">
-            <h3 id="member-name" class="display-6"></h3>
-            <p id="member-role" class="fs-5">${name}</p>
-            <div class="info-grid">
-              <div class="info-card">
-                <p class="fw-semibold text-info">MBTI</p>
-                <p class="text-dark" id="member-mbti">${mbti}</p>
-              </div>
-              <div class="info-card">
-                <p class="fw-semibold text-info">한마디</p>
-                <p class="text-dark" id="member-greeting">${title}</p>
-              </div>
-              <div class="info-card">
-                <p class="fw-semibold text-info">특기와 취미</p>
-                <p class="text-dark" id="member-skillsHobbies">${spec} / ${hobby}</p>
-              </div>
-              <div class="info-card">
-                <p class="fw-semibold text-info">장점과 단점</p>
-                <p class="text-dark" id="member-strengthsWeaknesses">${pros} / ${cons}</p>
-              </div>
-              <div class="info-card">
-                <p class="fw-semibold text-info">
-                  좋아하는 것과 싫어하는 것
-                </p>
-                <p class="text-dark" id="member-likesDislikes">${like} / ${hate}</p>
-              </div>
-              <div class="info-card">
-                <p class="fw-semibold text-info">타이틀 노래</p>
-                <p class="text-dark" id="member-titleSong">${song}</p>
-              </div>
-            </div>
-            <div id="member-blogUrl-container" class="text-secondary mt-4">
-              <strong class="fw-medium">개인 블로그: <a href="${blog}">${blog}</a></strong>
-              <a
-                id="member-blogUrl"
-                href=""
-                target="_blank"
-                rel="noopener noreferrer"
-                class="link-primary"
-              ></a>
-            </div>
-          </div>
-        </div>`;
-
-        // console.log(card_html);
-        $("#memberDetailContainer").append(card_html);
+          // HTML 요소에 값 주입
+          $("#member-img").attr("src", member.img);
+          $("#member-name").text(member.name);
+          $("#member-mbti").text(member.mbti);
+          $("#member-greeting").text(member.title);
+          $("#member-skillsHobbies").text(`${member.spec} / ${member.hobby}`);
+          $("#member-strengthsWeaknesses").text(`${member.pros} / ${member.cons}`);
+          $("#member-likesDislikes").text(`${member.like} / ${member.hate}`);
+          $("#member-titleSong").text(member.song);
+          // 블로그 링크 처리
+          $("#member-blogUrl-container a").attr("href", member.blog).text(member.blog);
       }
 
       /**
@@ -366,9 +310,60 @@
         <h2 class="display-5">팀원 소개</h2>
         <div
           id="teamMemberDetailSection"
-          style="width: 100%; margin-bottom: 2rem"
-        >
-          <div id="memberDetailContainer" class="card"></div>
+          style="width: 100%; margin-bottom: 2rem">
+          <div id="memberDetailContainer" class="card">
+            <div class="row">
+              <div class="col-img">
+                <img
+                  id="member-img"
+                  src="${img}"
+                  alt=""
+                  class="rounded-circle border-primary shadow-sm"
+                  style="width: 200px; height: 200px; object-fit: cover"
+                />
+              </div>
+              <div class="col-info">
+                <h3 id="member-name" class="display-6"></h3>
+                <p id="member-role" class="fs-5"></p>
+                <div class="info-grid">
+                  <div class="info-card">
+                    <p class="fw-semibold text-info">MBTI</p>
+                    <p class="text-dark" id="member-mbti"></p>
+                  </div>
+                  <div class="info-card">
+                    <p class="fw-semibold text-info">한마디</p>
+                    <p class="text-dark" id="member-greeting"></p>
+                  </div>
+                  <div class="info-card">
+                    <p class="fw-semibold text-info">특기와 취미</p>
+                    <p class="text-dark" id="member-skillsHobbies"></p>
+                  </div>
+                  <div class="info-card">
+                    <p class="fw-semibold text-info">장점과 단점</p>
+                    <p class="text-dark" id="member-strengthsWeaknesses"></p>
+                  </div>
+                  <div class="info-card">
+                    <p class="fw-semibold text-info">좋아하는 것과 싫어하는 것</p>
+                    <p class="text-dark" id="member-likesDislikes"></p>
+                  </div>
+                  <div class="info-card">
+                    <p class="fw-semibold text-info">타이틀 노래</p>
+                    <p class="text-dark" id="member-titleSong"></p>
+                  </div>
+                </div>
+                <div id="member-blogUrl-container" class="text-secondary mt-4">
+                  <strong class="fw-medium">개인 블로그: </strong>
+                  <a
+                    id="member-blogUrl"
+                    href=""
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="link-primary"
+                  ></a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 팀원 슬라이더 섹션 -->
