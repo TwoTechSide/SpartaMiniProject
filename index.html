@@ -51,8 +51,9 @@
         $("#homeTeamMembersGrid").html(teamMemberListHtml);
       });
 
+      // 멤버 카드 클릭시 memberName 데이터와 함께 detail.html로 이동
       $(".member-card").click((e) => {
-        location.href = "detail.html/?memberName=" + e.target.alt;
+        location.href = "detail.html?memberName=" + e.target.alt;
       });
     </script>
     <style>
