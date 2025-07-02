@@ -96,9 +96,9 @@
         }); // 임시로 정해진 문서의 content 수정
       });
 
-      // 멤버 카드 클릭시 memberName 데이터와 함께 detail.html로 이동
+      // 멤버 카드 클릭시 name 파라미터와 함께 detail.html로 이동
       $(".member-card").click((e) => {
-        location.href = "detail.html?memberName=" + e.target.alt;
+        location.href = "detail.html?name=" + e.target.alt;
       });
     </script>
     <style>
