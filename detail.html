@@ -34,15 +34,16 @@
       const db = getFirestore(app);
 
       // DB에서 특정 팀원 정보 가져오기
-      let name = "박신희";
+      // let name = "";
+      // let members = [];
 
       /**
        * 페이지가 로드되면 Firestore에서 팀원 정보를 가져와 슬라이더에 렌더링합니다.
        */
       document.addEventListener("DOMContentLoaded", async () => {
         const members = await fetchMembers();
-
-        getMember(name, members);
+        const selectedName = getNameFromHomeURL();
+        getMember(selectedName, members);
         renderSlider(members);
       });
 
