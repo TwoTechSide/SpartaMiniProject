@@ -14,7 +14,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
       import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
       import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-      import { doc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+      import { doc, getDocs, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
       // Firebase 구성 정보 설정
       const firebaseConfig = {
@@ -77,6 +77,23 @@
         }
 
         $(this).remove();
+      });
+
+      /*** (Test) 파이어베이스 데이터 추가 ***/
+      $("#add-list").click(async function () {
+        let modifiedContent = $("#new-content").val();
+        await setDoc(doc(db, "TeamRule", "new"), {
+          id: 123,
+          content: modifiedContent,
+        });
+      });
+
+      /*** (Test) 파이어베이스 데이터 추가 ***/
+      $("#modify-list").click(async function () {
+        let modifiedContent = $("#new-content").val();
+        await updateDoc(doc(db, "TeamRule", "2s14LVJ2pt5uV7TsKYjn"), {
+          content: modifiedContent,
+        }); // 임시로 정해진 문서의 content 수정
       });
 
       // 멤버 카드 클릭시 memberName 데이터와 함께 detail.html로 이동
@@ -156,4 +173,8 @@
       </section>
     </main>
   </body>
+  <!-- (test) 파이어베이스 데이터 수정, 추가 -->
+  <input type="text" id="new-content" />
+  <button id="add-list">추가하기</button>
+  <button id="modify-list">수정하기</button>
 </html>
