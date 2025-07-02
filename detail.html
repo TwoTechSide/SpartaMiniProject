@@ -4,25 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>클래스 부트캠프 팀</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
       import {
         getFirestore,
         collection,
         getDocs,
+        addDoc,
+        where,
+        query,
       } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
-      import { firebaseConfig } from "./firebase-config.js";
 
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyAUjCKERRTPH6kcmbW-cyEirSTW6SfivCQ",
+        authDomain: "spartaminiproject-8c1e4.firebaseapp.com",
+        projectId: "spartaminiproject-8c1e4",
+        storageBucket: "spartaminiproject-8c1e4.firebasestorage.app",
+        messagingSenderId: "1006694549228",
+        appId: "1:1006694549228:web:c86739b1a0acdb96d547c9",
+        measurementId: "G-92P7CY7JRK",
+      };
+
+      // Firebase 인스턴스 초기화
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
+
+      // DB에서 특정 팀원 정보 가져오기
+      let name = "박신희";
 
       /**
        * 페이지가 로드되면 Firestore에서 팀원 정보를 가져와 슬라이더에 렌더링합니다.
        */
       document.addEventListener("DOMContentLoaded", async () => {
         const members = await fetchMembers();
+
+        getMember(name, members);
         renderSlider(members);
       });
 
@@ -37,6 +57,83 @@
           members.push(doc.data());
         });
         return members;
+      }
+
+      async function getMember(selectedName, members) {
+        // const q = query(docs, where("name", "==", name));
+
+        // javascript array 고차함수인 filter를 사용하여 name과 일치하는 팀원 정보를 찾습니다.
+        const member = members.filter((doc) => doc.name === selectedName)[0];
+
+        let name = member["name"];
+        let mbti = member["mbti"];
+        let title = member["title"];
+        let spec = member["spec"];
+        let hobby = member["hobby"];
+        let pros = member["pros"];
+        let cons = member["cons"];
+        let like = member["like"];
+        let hate = member["hate"];
+        let song = member["song"];
+        let img = member["img"];
+        let blog = member["blog"];
+
+        let card_html = `<div class="row">
+          <div class="col-img">
+            <img
+              id="member-img"
+              src="${img}"
+              alt=""
+              class="rounded-circle border-primary shadow-sm"
+              style="width: 200px; height: 200px; object-fit: cover"
+            />
+          </div>
+          <div class="col-info">
+            <h3 id="member-name" class="display-6"></h3>
+            <p id="member-role" class="fs-5">${name}</p>
+            <div class="info-grid">
+              <div class="info-card">
+                <p class="fw-semibold text-info">MBTI</p>
+                <p class="text-dark" id="member-mbti">${mbti}</p>
+              </div>
+              <div class="info-card">
+                <p class="fw-semibold text-info">한마디</p>
+                <p class="text-dark" id="member-greeting">${title}</p>
+              </div>
+              <div class="info-card">
+                <p class="fw-semibold text-info">특기와 취미</p>
+                <p class="text-dark" id="member-skillsHobbies">${spec} / ${hobby}</p>
+              </div>
+              <div class="info-card">
+                <p class="fw-semibold text-info">장점과 단점</p>
+                <p class="text-dark" id="member-strengthsWeaknesses">${pros} / ${cons}</p>
+              </div>
+              <div class="info-card">
+                <p class="fw-semibold text-info">
+                  좋아하는 것과 싫어하는 것
+                </p>
+                <p class="text-dark" id="member-likesDislikes">${like} / ${hate}</p>
+              </div>
+              <div class="info-card">
+                <p class="fw-semibold text-info">타이틀 노래</p>
+                <p class="text-dark" id="member-titleSong">${song}</p>
+              </div>
+            </div>
+            <div id="member-blogUrl-container" class="text-secondary mt-4">
+              <strong class="fw-medium">개인 블로그: <a href="${blog}">${blog}</a></strong>
+              <a
+                id="member-blogUrl"
+                href=""
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link-primary"
+              ></a>
+            </div>
+          </div>
+        </div>`;
+
+        // console.log(card_html);
+        $("#memberDetailContainer").append(card_html);
       }
 
       /**
@@ -271,74 +368,7 @@
           id="teamMemberDetailSection"
           style="width: 100%; margin-bottom: 2rem"
         >
-          <div id="memberDetailContainer" class="card">
-            <div class="row">
-              <div class="col-img">
-                <img
-                  id="member-img"
-                  src=""
-                  alt=""
-                  class="rounded-circle border-primary shadow-sm"
-                  style="width: 200px; height: 200px; object-fit: cover"
-                />
-              </div>
-              <div class="col-info">
-                <h3 id="member-name" class="display-6"></h3>
-                <p id="member-role" class="fs-5"></p>
-                <div class="info-grid">
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">MBTI</p>
-                    <p class="text-dark" id="member-mbti"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">한마디</p>
-                    <p class="text-dark" id="member-greeting"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">특기와 취미</p>
-                    <p class="text-dark" id="member-skillsHobbies"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">장점과 단점</p>
-                    <p class="text-dark" id="member-strengthsWeaknesses"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">
-                      좋아하는 것과 싫어하는 것
-                    </p>
-                    <p class="text-dark" id="member-likesDislikes"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">타이틀 노래</p>
-                    <p class="text-dark" id="member-titleSong"></p>
-                    <div id="member-titleImage-container" class="mt-2">
-                      <img
-                        id="member-titleImage"
-                        src=""
-                        alt=""
-                        style="
-                          width: 80px;
-                          height: 80px;
-                          object-fit: cover;
-                          border-radius: 0.5rem;
-                        "
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div id="member-blogUrl-container" class="text-secondary mt-4">
-                  <strong class="fw-medium">개인 블로그:</strong>
-                  <a
-                    id="member-blogUrl"
-                    href=""
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="link-primary"
-                  ></a>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div id="memberDetailContainer" class="card"></div>
         </div>
 
         <!-- 팀원 슬라이더 섹션 -->
