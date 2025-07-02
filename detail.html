@@ -63,22 +63,26 @@
       async function getMember(selectedName, members) {
         // javascript array 고차함수인 filter를 사용하여 name과 일치하는 팀원 정보 찾기
         const member = members.filter((doc) => doc.name === selectedName)[0];
-          if (!member) {
-            alert("멤버를 찾을 수 없습니다.");
-            return;
-          }
+        if (!member) {
+          alert("멤버를 찾을 수 없습니다.");
+          return;
+        }
 
-          // HTML 요소에 값 주입
-          $("#member-img").attr("src", member.img);
-          $("#member-name").text(member.name);
-          $("#member-mbti").text(member.mbti);
-          $("#member-greeting").text(member.title);
-          $("#member-skillsHobbies").text(`${member.spec} / ${member.hobby}`);
-          $("#member-strengthsWeaknesses").text(`${member.pros} / ${member.cons}`);
-          $("#member-likesDislikes").text(`${member.like} / ${member.hate}`);
-          $("#member-titleSong").text(member.song);
-          // 블로그 링크 처리
-          $("#member-blogUrl-container a").attr("href", member.blog).text(member.blog);
+        // HTML 요소에 값 주입
+        $("#member-img").attr("src", member.img);
+        $("#member-name").text(member.name);
+        $("#member-mbti").text(member.mbti);
+        $("#member-greeting").text(member.title);
+        $("#member-skillsHobbies").text(`${member.spec} / ${member.hobby}`);
+        $("#member-strengthsWeaknesses").text(
+          `${member.pros} / ${member.cons}`
+        );
+        $("#member-likesDislikes").text(`${member.like} / ${member.hate}`);
+        $("#member-titleSong").text(member.song);
+        // 블로그 링크 처리
+        $("#member-blogUrl-container a")
+          .attr("href", member.blog)
+          .text(member.blog);
       }
 
       /**
@@ -96,8 +100,28 @@
             <div class="slider-name">${member.name}</div>
             <div class="slider-role">${member.mbti}</div>
           `;
+
+          // 클릭 이벤트 리스너 추가
+          item.addEventListener("click", () => {
+            getMember(member.name, members);
+            history.replaceState(
+              null,
+              "",
+              `?name=${encodeURIComponent(member.name)}`
+            );
+          });
+
           slider.appendChild(item);
         });
+      }
+
+      /**
+       * URL에서 name 파라미터를 가져옵니다.
+       * @returns {string} 이름
+       */
+      function getNameFromHomeURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("name") || "박신희"; // 기본값 설정
       }
     </script>
     <style>
@@ -311,7 +335,8 @@
         <h2 class="display-5">팀원 소개</h2>
         <div
           id="teamMemberDetailSection"
-          style="width: 100%; margin-bottom: 2rem">
+          style="width: 100%; margin-bottom: 2rem"
+        >
           <div id="memberDetailContainer" class="card">
             <div class="row">
               <div class="col-img">
@@ -344,7 +369,9 @@
                     <p class="text-dark" id="member-strengthsWeaknesses"></p>
                   </div>
                   <div class="info-card">
-                    <p class="fw-semibold text-info">좋아하는 것과 싫어하는 것</p>
+                    <p class="fw-semibold text-info">
+                      좋아하는 것과 싫어하는 것
+                    </p>
                     <p class="text-dark" id="member-likesDislikes"></p>
                   </div>
                   <div class="info-card">
