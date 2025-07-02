@@ -25,6 +25,11 @@
         addDoc,
         where,
         query,
+        serverTimestamp,
+        orderBy,
+        doc,
+        updateDoc,
+        deleteDoc,
       } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
 
@@ -52,6 +57,7 @@
         const selectedName = getNameFromHomeURL();
         getMember(selectedName, members);
         renderSlider(members);
+        loadMessages(selectedName);
       });
 
       /**
@@ -116,6 +122,7 @@
           // 클릭 이벤트 리스너 추가
           item.addEventListener("click", () => {
             getMember(member.name, members);
+            loadMessages(member.name);
             history.replaceState(
               null,
               "",
@@ -135,6 +142,97 @@
         const params = new URLSearchParams(window.location.search);
         return params.get("name") || "박신희"; // 기본값 설정
       }
+
+      //-----------------------------------------------------------------------------
+
+      async function loadMessages(selectedName) {
+        const messagesList = document.getElementById("messagesList");
+        messagesList.innerHTML = "";
+
+        const q = query(
+          collection(db, "guestbook"),
+          where("to", "==", selectedName),
+          orderBy("createdAt", "desc")
+        );
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.classList.add("guest-li");
+          li.innerHTML = `
+            <strong>${data.guestName || "익명"}</strong><br>
+            <span class="msg-text">${data.guestMessage || ""}</span>
+            <button class="editBtn" data-id="${doc.id}">수정</button>
+            <button class="deleteBtn" data-id="${doc.id}">삭제</button>
+        `;
+          messagesList.appendChild(li);
+        });
+      }
+
+      document
+        .getElementById("wrght")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const guestName = document.getElementById("guestName_i").value.trim();
+          const guestMessage = document
+            .getElementById("guestMessage_i")
+            .value.trim();
+          const editId = this.getAttribute("data-edit-id");
+
+          if (guestName.length < 1) {
+            alert("이름을 입력해주세요.");
+            return;
+          }
+          if (guestMessage.length < 1) {
+            alert("메시지를 입력해주세요.");
+            return;
+          }
+
+          const selectedName = getNameFromHomeURL();
+          if (editId) {
+            await updateDoc(doc(db, "guestbook", editId), {
+              guestName: guestName,
+              guestMessage: guestMessage,
+              to: selectedName,
+            });
+            this.removeAttribute("data-edit-id");
+            document.getElementById("guestSubmit_i").textContent = "등록";
+          } else {
+            await addDoc(collection(db, "guestbook"), {
+              guestName,
+              guestMessage,
+              to: selectedName,
+              createdAt: serverTimestamp(),
+            });
+          }
+          document.getElementById("guestName_i").value = "";
+          document.getElementById("guestMessage_i").value = "";
+          loadMessages(selectedName);
+        });
+
+      document
+        .getElementById("messagesList")
+        .addEventListener("click", async function (e) {
+          if (e.target.classList.contains("editBtn")) {
+            const docId = e.target.getAttribute("data-id");
+            const li = e.target.closest("li");
+            const name = li.querySelector("strong").innerText;
+            const msg = li.querySelector(".msg-text").innerText;
+            document.getElementById("guestName_i").value = name;
+            document.getElementById("guestMessage_i").value = msg;
+            document
+              .getElementById("wrght")
+              .setAttribute("data-edit-id", docId);
+            document.getElementById("guestSubmit_i").textContent = "수정";
+          } else if (e.target.classList.contains("deleteBtn")) {
+            const docId = e.target.getAttribute("data-id");
+            if (confirm("정말 삭제하시겠습니까?")) {
+              await deleteDoc(doc(db, "guestbook", docId));
+              loadMessages(getNameFromHomeURL());
+            }
+          }
+        });
     </script>
     <style>
       body {
@@ -339,6 +437,155 @@
           grid-template-columns: 1fr;
         }
       }
+
+      .guest-li {
+        background: #f4f6fb;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 14px;
+      }
+
+      .main-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        padding: 32px 28px 28px 28px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 18px;
+        color: #333;
+        align-items: center;
+      }
+
+      .subtitle {
+        max-width: 1000px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        padding: 32px 28px 28px 28px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .label {
+        font-size: 1rem;
+        margin-bottom: 6px;
+        color: #555;
+        align-self: center;
+        align-items: center;
+      }
+
+      .guestName,
+      .guestMessage {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        padding: 10px;
+        margin-bottom: 18px;
+        font-size: 1rem;
+        background: #fafbfc;
+        transition: border 0.2s;
+      }
+
+      .guestName:focus,
+      .guestMessage:focus {
+        border: 1.5px solid #7c3aed;
+        outline: none;
+        align-items: center;
+      }
+
+      .guestName {
+        width: 700px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        padding: 10px;
+        margin-bottom: 18px;
+        font-size: 1rem;
+        background: #fafbfc;
+        transition: border 0.2s;
+        margin: 40px auto;
+      }
+
+      .guestMessage {
+        width: 700px;
+        height: 100px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        padding: 10px;
+        margin-bottom: 18px;
+        font-size: 1rem;
+        background: #fafbfc;
+        transition: border 0.2s;
+        margin: 40px auto;
+      }
+
+      .guestSubmit {
+        width: 15%;
+        background: #5b94ff;
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 12px 0;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        align-items: center;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .guestSubmit:hover {
+        background: #5196ff;
+      }
+
+      .editBtn {
+        background: transparent;
+        border: none;
+        color: #5b94ff;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 2px 8px;
+        transition: color 0.2s;
+      }
+
+      .editBtn:hover {
+        color: #003e9c;
+        text-decoration: underline;
+      }
+
+      .deleteBtn {
+        background: transparent;
+        border: none;
+        color: #ff4d4f;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 2px 8px;
+        transition: color 0.2s;
+      }
+
+      .deleteBtn:hover {
+        color: #b30000;
+        text-decoration: underline;
+      }
+
+      .guestSection {
+        background: #f7f7fa;
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+      }
     </style>
   </head>
 
@@ -461,6 +708,44 @@
             <!-- 팀원 슬라이더의 항목들은 동적으로 추가 -->
           </div>
         </section>
+      </section>
+
+      <!-- 방명록 섹션-->
+      <section class="guestSection">
+        <div class="main-container">
+          <div class="title">응원의 메시지</div>
+          <div class="subtitle">
+            메시지를 남겨주세요!
+            <form id="wrght" class="wrght" autocomplete="off">
+              <div class="label">이름</div>
+              <input
+                type="text"
+                id="guestName_i"
+                name="guestName"
+                placeholder="이름을 입력하세요"
+                class="guestName"
+              /><br />
+              <div class="label">내용</div>
+              <textarea
+                id="guestMessage_i"
+                name="guestMessage"
+                placeholder="메시지를 입력하세요"
+                class="guestMessage"
+              ></textarea
+              ><br />
+              <button type="submit" id="guestSubmit_i" class="guestSubmit">
+                등록
+              </button>
+            </form>
+          </div>
+          <div
+            id="messagesContainer"
+            style="width: 700px; margin: 40px auto 0 auto"
+          >
+            <h3 style="color: #333; margin-bottom: 16px">응원의 말</h3>
+            <ul id="messagesList" style="list-style: none; padding: 0"></ul>
+          </div>
+        </div>
       </section>
     </main>
   </body>
