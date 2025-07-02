@@ -31,11 +31,13 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      let docs = await getDocs(collection(db, "MemberInfo"));
+      let memberInfoDocs = await getDocs(collection(db, "MemberInfo"));
+      let teamGoalDocs = await getDocs(collection(db, "TeamGoal"));
+      let teamRuleDocs = await getDocs(collection(db, "TeamRule"));
 
-      // DB에서 파이어베이스의 MemberInfo를 불러온 뒤 HTML 추가
+      // 파이어베이스의 MemberInfo를 불러온 뒤 HTML 추가
       let teamMemberListHtml = "";
-      docs.forEach((doc) => {
+      memberInfoDocs.forEach((doc) => {
         let member = doc.data();
         teamMemberListHtml += `
           <div class="col-12 col-sm-6 col-lg-4 col-xl-2 mb-4">
@@ -49,6 +51,14 @@
           </div>
           `;
         $("#homeTeamMembersGrid").html(teamMemberListHtml);
+      });
+
+      // 파이퍼베이스의 TeamGoal, TeamRule을 불러온 뒤 리스트 추가
+      teamGoalDocs.forEach((doc) => {
+        $("#team-rule-list").append(`<li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>${doc.data().content}</li>`);
+      });
+      teamRuleDocs.forEach((doc) => {
+        $("#team-goal-list").append(`<li class="mb-2"><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${doc.data().content}</li>`);
       });
 
       // 멤버 카드 클릭시 memberName 데이터와 함께 detail.html로 이동
@@ -113,23 +123,13 @@
       </div>
 
       <section class="mb-5 p-4 p-md-5 border bg-light rounded-3 text-center" id="teamGoalSection">
-        <h2 class="h3 fw-bold text-dark mb-4">팀 목표</h2>
-        <ul class="list-unstyled text-secondary mx-auto" style="max-width: 800px">
-          <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>사용자에게 가치 있는 경험을 제공하는 웹 서비스 구축</li>
-          <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>최신 웹 기술 스택 학습 및 적용</li>
-          <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>팀원 간의 효과적인 협업 및 시너지 창출</li>
-          <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>지속적인 코드 품질 향상 및 리팩토링</li>
-        </ul>
+        <h2 class="h3 fw-bold text-dark mb-4">팀 규칙</h2>
+        <ul class="list-unstyled text-secondary mx-auto" style="max-width: 800px" id="team-rule-list"></ul>
       </section>
 
       <section class="mb-5 p-4 p-md-5 border bg-light rounded-3 text-center" id="teamPromiseSection">
         <h2 class="h3 fw-bold text-dark mb-4">팀 약속</h2>
-        <ul class="list-unstyled text-secondary mx-auto" style="max-width: 800px">
-          <li class="mb-2"><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>매일 아침 스크럼을 통해 진행 상황 공유</li>
-          <li class="mb-2"><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>서로의 의견을 존중하고 적극적으로 피드백 제공</li>
-          <li class="mb-2"><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>어려움에 처한 팀원을 돕기 위해 최선을 다함</li>
-          <li class="mb-2"><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>정해진 기한 내에 목표를 달성하기 위해 노력</li>
-        </ul>
+        <ul class="list-unstyled text-secondary mx-auto" style="max-width: 800px" id="team-goal-list"></ul>
       </section>
 
       <section class="mt-5">
