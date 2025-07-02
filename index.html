@@ -53,49 +53,6 @@
         $("#homeTeamMembersGrid").html(teamMemberListHtml);
       });
 
-      /*** (Test) 파이어베이스의 TeamGoal, TeamRule을 불러온 뒤 리스트 추가 ***/
-      // teamGoalDocs.forEach((doc) => {
-      //   let fbDoc = doc._key.path.segments[6];
-      //   let docData = doc.data();
-      //   $("#team-goal-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-check-circle-fill text-success me-2"></i>${docData.content}</li>`);
-      // });
-      // teamRuleDocs.forEach((doc) => {
-      //   let fbDoc = doc._key.path.segments[6];
-      //   let docData = doc.data();
-      //   $("#team-rule-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${docData.content}</li>`);
-      // });
-
-      /*** (Test) 규칙, 약속 리스트 클릭 시 제거 ***/
-      // $(".team-info-list").click(async function () {
-      //   let parentId = $(this).parent().attr("id");
-      //   let listId = $(this).attr("id");
-
-      //   if (parentId == "team-rule-list") {
-      //     await deleteDoc(doc(db, "TeamRule", listId));
-      //   } else if (parentId == "team-goal-list") {
-      //     await deleteDoc(doc(db, "TeamGoal", listId));
-      //   }
-
-      //   $(this).remove();
-      // });
-
-      /*** (Test) 파이어베이스 데이터 추가 ***/
-      // $("#add-list").click(async function () {
-      //   let modifiedContent = $("#new-content").val();
-      //   await setDoc(doc(db, "TeamRule", "new"), {
-      //     id: 123,
-      //     content: modifiedContent,
-      //   });
-      // });
-
-      /*** (Test) 파이어베이스 데이터 추가 ***/
-      // $("#modify-list").click(async function () {
-      //   let modifiedContent = $("#new-content").val();
-      //   await updateDoc(doc(db, "TeamRule", "2s14LVJ2pt5uV7TsKYjn"), {
-      //     content: modifiedContent,
-      //   }); // 임시로 정해진 문서의 content 수정
-      // });
-
       // 멤버 카드 클릭시 name 파라미터와 함께 detail.html로 이동
       $(".member-card").click((e) => {
         location.href = "detail.html?name=" + e.target.alt;
@@ -361,8 +318,4 @@
       </section>
     </main>
   </body>
-  <!-- (test) 파이어베이스 데이터 수정, 추가 -->
-  <input type="text" id="new-content" />
-  <button id="add-list">추가하기</button>
-  <button id="modify-list">수정하기</button>
 </html>
