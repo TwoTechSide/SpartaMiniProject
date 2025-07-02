@@ -101,6 +101,7 @@
         location.href = "detail.html?name=" + e.target.alt;
       });
 
+<<<<<<< HEAD
       // 목표 리스트 렌더링
       teamGoalDocs.forEach((doc) => {
         const id = doc.id;
@@ -176,6 +177,8 @@
       });
 
       // 삭제
+=======
+>>>>>>> 836b39716f4a9ddc5230f88f5c066f6832ee7013
       $(document).on("click", ".btn-delete", async function () {
         const id = $(this).data("id");
         const type = $(this).data("type");
@@ -183,6 +186,7 @@
         $(`#${id}`).remove();
       });
 
+<<<<<<< HEAD
       // 수정
       $(document).on("click", ".btn-edit", async function () {
         const id = $(this).data("id");
@@ -201,6 +205,81 @@
     `);
         }
       });
+=======
+      $(document).on("click", ".btn-edit", function () {
+        const id = $(this).data("id");
+        const type = $(this).data("type");
+        const $li = $(`#${id}`);
+        const current = $li.text().trim();
+        const updated = prompt("수정할 내용을 입력하세요:", current);
+        if (updated) {
+          updateDoc(doc(db, type, id), { content: updated });
+          $li.contents().first()[0].textContent = " " + updated;
+        }
+      });
+
+      teamGoalDocs.forEach((doc) => {
+        let fbDoc = doc.id;
+        let docData = doc.data();
+        $("#team-goal-list").append(`
+    <li class="mb-2 team-info-list" id="${fbDoc}">
+      <i class="bi bi-check-circle-fill text-success me-2"></i>${docData.content}
+      <div class="action-buttons">
+        <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${fbDoc}" data-type="TeamGoal">수정</button>
+        <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${fbDoc}" data-type="TeamGoal">제거</button>
+      </div>
+    </li>
+  `);
+      });
+
+      // 마우스가 리스트 아래에 진입하면 (+)버튼 보여주기
+      $("#team-goal-list")
+        .parent()
+        .on("mouseenter", function () {
+          $("#add-goal-button").removeClass("d-none");
+        });
+      $("#team-goal-list")
+        .parent()
+        .on("mouseleave", function () {
+          $("#add-goal-button").addClass("d-none");
+        });
+
+      // 추가
+      $("#add-goal-button").click(async function () {
+        const content = prompt("새 항목 내용을 입력하세요:");
+        if (content) {
+          const docRef = await addDoc(collection(db, "TeamGoal"), { content });
+          $("#team-goal-list").append(`
+      <li class="mb-2 team-info-list" id="${docRef.id}">
+        <i class="bi bi-check-circle-fill text-success me-2"></i>${content}
+        <div class="action-buttons">
+          <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${docRef.id}" data-type="TeamGoal">수정</button>
+          <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${docRef.id}" data-type="TeamGoal">제거</button>
+        </div>
+      </li>
+    `);
+        }
+      });
+
+      $(document).on("click", ".btn-delete", async function () {
+        const id = $(this).data("id");
+        const type = $(this).data("type");
+        await deleteDoc(doc(db, type, id));
+        $(`#${id}`).remove();
+      });
+
+      $(document).on("click", ".btn-edit", function () {
+        const id = $(this).data("id");
+        const type = $(this).data("type");
+        const $li = $(`#${id}`);
+        const current = $li.text().trim();
+        const updated = prompt("수정할 내용을 입력하세요:", current);
+        if (updated) {
+          updateDoc(doc(db, type, id), { content: updated });
+          $li.contents().first()[0].textContent = " " + updated;
+        }
+      });
+>>>>>>> 836b39716f4a9ddc5230f88f5c066f6832ee7013
     </script>
     <style>
       .member-card {
@@ -230,12 +309,21 @@
 
       .team-info-list {
         position: relative;
+<<<<<<< HEAD
         padding-right: 120px;
         transition: background-color 0.2s ease;
       }
 
       .team-info-list:hover {
         background-color: #f8f9fa;
+=======
+        padding-right: 100px;
+        transition: background 0.3s ease;
+      }
+
+      .team-info-list:hover {
+        background: #f8f9fa;
+>>>>>>> 836b39716f4a9ddc5230f88f5c066f6832ee7013
       }
 
       .action-buttons {
@@ -251,6 +339,7 @@
         display: flex;
       }
 
+<<<<<<< HEAD
       .list-hover-zone {
         height: 40px;
         background-color: transparent;
@@ -261,12 +350,26 @@
         color: #0d6efd;
         font-weight: 500;
         display: inline-block;
+=======
+      .list-add-btn {
+        cursor: pointer;
+        color: #0d6efd;
+        text-align: center;
+        margin-top: 10px;
+>>>>>>> 836b39716f4a9ddc5230f88f5c066f6832ee7013
         transition: opacity 0.3s ease;
       }
 
       .list-add-btn:hover {
         opacity: 0.7;
       }
+<<<<<<< HEAD
+=======
+
+      .team-info-list-container:hover .list-add-btn {
+        opacity: 1;
+      }
+>>>>>>> 836b39716f4a9ddc5230f88f5c066f6832ee7013
     </style>
   </head>
   <body>
