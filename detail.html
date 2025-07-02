@@ -85,7 +85,12 @@
           `${member.pros} / ${member.cons}`
         );
         $("#member-likesDislikes").text(`${member.like} / ${member.hate}`);
-        $("#member-titleSong").text(member.song);
+        $("#member-titleSongInfo").text(member.song);
+        $("#member-titleSongLink").html(`
+          <a href="${member.songUrl}" target="_blank" rel="noopener noreferrer" class="link-primary">
+            유튜브에서 보기
+          </a>
+        `);
         // 블로그 링크 처리
         $("#member-blogUrl-container a")
           .attr("href", member.blog)
@@ -396,7 +401,7 @@
               <div class="col-img">
                 <img
                   id="member-img"
-                  src="${img}"
+                  src=""
                   alt=""
                   class="rounded-circle border-primary shadow-sm"
                   style="width: 200px; height: 200px; object-fit: cover"
@@ -430,7 +435,8 @@
                   </div>
                   <div class="info-card">
                     <p class="fw-semibold text-info">타이틀 노래</p>
-                    <p class="text-dark" id="member-titleSong"></p>
+                    <p class="text-dark" id="member-titleSongInfo"></p>
+                    <p class="text-dark" id="member-titleSongLink"></p>
                   </div>
                 </div>
                 <div id="member-blogUrl-container" class="text-secondary mt-4">
