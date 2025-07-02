@@ -54,47 +54,47 @@
       });
 
       /*** (Test) 파이어베이스의 TeamGoal, TeamRule을 불러온 뒤 리스트 추가 ***/
-      teamGoalDocs.forEach((doc) => {
-        let fbDoc = doc._key.path.segments[6];
-        let docData = doc.data();
-        $("#team-goal-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-check-circle-fill text-success me-2"></i>${docData.content}</li>`);
-      });
-      teamRuleDocs.forEach((doc) => {
-        let fbDoc = doc._key.path.segments[6];
-        let docData = doc.data();
-        $("#team-rule-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${docData.content}</li>`);
-      });
+      // teamGoalDocs.forEach((doc) => {
+      //   let fbDoc = doc._key.path.segments[6];
+      //   let docData = doc.data();
+      //   $("#team-goal-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-check-circle-fill text-success me-2"></i>${docData.content}</li>`);
+      // });
+      // teamRuleDocs.forEach((doc) => {
+      //   let fbDoc = doc._key.path.segments[6];
+      //   let docData = doc.data();
+      //   $("#team-rule-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${docData.content}</li>`);
+      // });
 
       /*** (Test) 규칙, 약속 리스트 클릭 시 제거 ***/
-      $(".team-info-list").click(async function () {
-        let parentId = $(this).parent().attr("id");
-        let listId = $(this).attr("id");
+      // $(".team-info-list").click(async function () {
+      //   let parentId = $(this).parent().attr("id");
+      //   let listId = $(this).attr("id");
 
-        if (parentId == "team-rule-list") {
-          await deleteDoc(doc(db, "TeamRule", listId));
-        } else if (parentId == "team-goal-list") {
-          await deleteDoc(doc(db, "TeamGoal", listId));
-        }
+      //   if (parentId == "team-rule-list") {
+      //     await deleteDoc(doc(db, "TeamRule", listId));
+      //   } else if (parentId == "team-goal-list") {
+      //     await deleteDoc(doc(db, "TeamGoal", listId));
+      //   }
 
-        $(this).remove();
-      });
-
-      /*** (Test) 파이어베이스 데이터 추가 ***/
-      $("#add-list").click(async function () {
-        let modifiedContent = $("#new-content").val();
-        await setDoc(doc(db, "TeamRule", "new"), {
-          id: 123,
-          content: modifiedContent,
-        });
-      });
+      //   $(this).remove();
+      // });
 
       /*** (Test) 파이어베이스 데이터 추가 ***/
-      $("#modify-list").click(async function () {
-        let modifiedContent = $("#new-content").val();
-        await updateDoc(doc(db, "TeamRule", "2s14LVJ2pt5uV7TsKYjn"), {
-          content: modifiedContent,
-        }); // 임시로 정해진 문서의 content 수정
-      });
+      // $("#add-list").click(async function () {
+      //   let modifiedContent = $("#new-content").val();
+      //   await setDoc(doc(db, "TeamRule", "new"), {
+      //     id: 123,
+      //     content: modifiedContent,
+      //   });
+      // });
+
+      /*** (Test) 파이어베이스 데이터 추가 ***/
+      // $("#modify-list").click(async function () {
+      //   let modifiedContent = $("#new-content").val();
+      //   await updateDoc(doc(db, "TeamRule", "2s14LVJ2pt5uV7TsKYjn"), {
+      //     content: modifiedContent,
+      //   }); // 임시로 정해진 문서의 content 수정
+      // });
 
       // 멤버 카드 클릭시 name 파라미터와 함께 detail.html로 이동
       $(".member-card").click((e) => {
@@ -195,19 +195,6 @@
         }
       });
 
-      teamGoalDocs.forEach((doc) => {
-        let fbDoc = doc.id;
-        let docData = doc.data();
-        $("#team-goal-list").append(`
-        <li class="mb-2 team-info-list" id="${fbDoc}">
-          <i class="bi bi-check-circle-fill text-success me-2"></i>${docData.content}
-          <div class="action-buttons">
-            <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${fbDoc}" data-type="TeamGoal">수정</button>
-            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${fbDoc}" data-type="TeamGoal">제거</button>
-          </div>
-        </li>`);
-      });
-
       // 마우스가 리스트 아래에 진입하면 (+)버튼 보여주기
       $("#team-goal-list")
         .parent()
@@ -225,38 +212,15 @@
         const content = prompt("새 항목 내용을 입력하세요:");
         if (content) {
           const docRef = await addDoc(collection(db, "TeamGoal"), { content });
-          $("#team-goal-list").append(
+          $("#team-goal-list").append(`
             <li class="mb-2 team-info-list" id="${docRef.id}">
               <i class="bi bi-check-circle-fill text-success me-2"></i>${content}
               <div class="action-buttons">
-                <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${docRef.id}" data-type="TeamGoal">
-                  수정
-                </button>
-                <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${docRef.id}" data-type="TeamGoal">
-                  제거
-                </button>
+                <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${docRef.id}" data-type="TeamGoal">수정</button>
+                <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${docRef.id}" data-type="TeamGoal">제거</button>
               </div>
             </li>
-          );
-        }
-      });
-
-      $(document).on("click", ".btn-delete", async function () {
-        const id = $(this).data("id");
-        const type = $(this).data("type");
-        await deleteDoc(doc(db, type, id));
-        $(`#${id}`).remove();
-      });
-
-      $(document).on("click", ".btn-edit", function () {
-        const id = $(this).data("id");
-        const type = $(this).data("type");
-        const $li = $(`#${id}`);
-        const current = $li.text().trim();
-        const updated = prompt("수정할 내용을 입력하세요:", current);
-        if (updated) {
-          updateDoc(doc(db, type, id), { content: updated });
-          $li.contents().first()[0].textContent = " " + updated;
+          `);
         }
       });
     </script>
