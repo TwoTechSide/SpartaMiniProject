@@ -13,7 +13,7 @@
       // Firebase SDK 라이브러리 가져오기
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
       import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-      import { doc, getDocs, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+      import { doc, getDocs, setDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
       // Firebase 구성 정보 설정
       const firebaseConfig = {
@@ -31,8 +31,8 @@
       const db = getFirestore(app);
 
       let memberInfoDocs = await getDocs(collection(db, "member"));
-      let teamGoalDocs = await getDocs(collection(db, "TeamGoal"));
-      let teamRuleDocs = await getDocs(collection(db, "TeamRule"));
+      let teamGoalDocs = await getDocs(query(collection(db, "TeamGoal"), orderBy("createdAt")));
+      let teamRuleDocs = await getDocs(query(collection(db, "TeamRule"), orderBy("createdAt")));
 
       // 파이어베이스의 member를 불러온 뒤 HTML 추가
       let teamMemberListHtml = "";
@@ -104,7 +104,10 @@
       $("#goal-add-button").click(async function () {
         const content = prompt("추가할 팀 목표를 입력하세요:");
         if (content) {
-          const newDoc = await addDoc(collection(db, "TeamGoal"), { content });
+          const newDoc = await addDoc(collection(db, "TeamGoal"), {
+            content: content,
+            createdAt: serverTimestamp(),
+          });
           $("#team-goal-list").append(`
           <li class="mb-2 team-info-list" id="${newDoc.id}">
             <i class="bi bi-check-circle-fill text-success me-2"></i>
@@ -121,7 +124,10 @@
       $("#rule-add-button").click(async function () {
         const content = prompt("추가할 팀 약속을 입력하세요:");
         if (content) {
-          const newDoc = await addDoc(collection(db, "TeamRule"), { content });
+          const newDoc = await addDoc(collection(db, "TeamRule"), {
+            content: content,
+            createdAt: serverTimestamp(),
+          });
           $("#team-rule-list").append(`
           <li class="mb-2 team-info-list" id="${newDoc.id}">
             <i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>
