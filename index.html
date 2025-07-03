@@ -12,40 +12,39 @@
     <script type="module">
       // Firebase SDK 라이브러리 가져오기
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-      import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-      import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+      import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
       import { doc, getDocs, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
       // Firebase 구성 정보 설정
       const firebaseConfig = {
-        apiKey: "AIzaSyCVRCWs6yWs1O34m-EtNQbs14J3NcFqVNI",
-        authDomain: "sparta-7a89b.firebaseapp.com",
-        projectId: "sparta-7a89b",
-        storageBucket: "sparta-7a89b.firebasestorage.app",
-        messagingSenderId: "277014482081",
-        appId: "1:277014482081:web:262c7e96e70f30b2ae34e0",
-        measurementId: "G-TQ0H9KX553",
+        apiKey: "AIzaSyAUjCKERRTPH6kcmbW-cyEirSTW6SfivCQ",
+        authDomain: "spartaminiproject-8c1e4.firebaseapp.com",
+        projectId: "spartaminiproject-8c1e4",
+        storageBucket: "spartaminiproject-8c1e4.firebasestorage.app",
+        messagingSenderId: "1006694549228",
+        appId: "1:1006694549228:web:c86739b1a0acdb96d547c9",
+        measurementId: "G-92P7CY7JRK",
       };
 
       // Firebase 인스턴스 초기화
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      let memberInfoDocs = await getDocs(collection(db, "MemberInfo"));
+      let memberInfoDocs = await getDocs(collection(db, "member"));
       let teamGoalDocs = await getDocs(collection(db, "TeamGoal"));
       let teamRuleDocs = await getDocs(collection(db, "TeamRule"));
 
-      // 파이어베이스의 MemberInfo를 불러온 뒤 HTML 추가
+      // 파이어베이스의 member를 불러온 뒤 HTML 추가
       let teamMemberListHtml = "";
       memberInfoDocs.forEach((doc) => {
         let member = doc.data();
         teamMemberListHtml += `
               <div class="col-12 col-sm-6 col-lg-4 col-xl-2 mb-4">
-                <div class="card h-100 shadow-sm border-0 rounded-3 text-center team-member-card" data-member-id="${member.id}">
-                  <img src="${member.imgSrc}" alt="${member.name}" class="card-img-top mx-auto mt-3 rounded-circle border border-primary member-card" style="width: 120px; height: 120px; object-fit: cover" />
+                <div class="card h-100 shadow-sm border-0 rounded-3 text-center team-member-card">
+                  <img src="${member.img}" alt="${member.name}" class="card-img-top mx-auto mt-3 rounded-circle border border-primary member-card" style="width: 120px; height: 120px; object-fit: cover" />
                   <div class="card-body">
                     <h5 class="card-title fw-bold text-dark mb-1">${member.name}</h5>
-                    <p class="card-text text-info">${member.nutshell}</p>
+                    <p class="card-text text-info">${member.title}</p>
                   </div>
                 </div>
               </div>
