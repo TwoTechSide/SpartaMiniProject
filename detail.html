@@ -118,8 +118,14 @@
     }
 
     //-----------------------------------------------------------------------------
-
     async function loadMessages(selectedName) {
+      // 메시지 입력창과 이름 입력창 초기화
+      document.getElementById("guestName_i").value = "";
+      document.getElementById("guestMessage_i").value = "";
+      document.getElementById("wrght").removeAttribute("data-edit-id");
+      document.getElementById("guestSubmit_i").textContent = "등록";
+      document.getElementById("cancelEdit_i").style.display = "none";
+
       const messagesList = document.getElementById("messagesList");
       messagesList.innerHTML = "";
 
