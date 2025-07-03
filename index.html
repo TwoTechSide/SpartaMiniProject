@@ -107,7 +107,8 @@
           const newDoc = await addDoc(collection(db, "TeamGoal"), { content });
           $("#team-goal-list").append(`
           <li class="mb-2 team-info-list" id="${newDoc.id}">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>${content}
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <span>${content}</span>
             <div class="action-buttons">
               <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${newDoc.id}" data-type="TeamGoal">수정</button>
               <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${newDoc.id}" data-type="TeamGoal">제거</button>
@@ -123,7 +124,8 @@
           const newDoc = await addDoc(collection(db, "TeamRule"), { content });
           $("#team-rule-list").append(`
           <li class="mb-2 team-info-list" id="${newDoc.id}">
-            <i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${content}
+            <i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>
+            <span>${content}</span>
             <div class="action-buttons">
               <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${newDoc.id}" data-type="TeamRule">수정</button>
               <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${newDoc.id}" data-type="TeamRule">제거</button>
@@ -271,10 +273,10 @@
 
       <!-- 팀 목표 -->
       <section class="mb-5 p-4 p-md-5 border bg-light rounded-3 text-center" id="teamPromiseSection">
-        <h2 class="h3 fw-bold text-dark mb-4">팀 목표</h2>
+        <h2 class="h3 fw-bold text-dark mb-4">팀 규칙</h2>
         <ul class="list-unstyled text-secondary mx-auto team-info-list-container" style="max-width: 800px" id="team-goal-list"></ul>
         <div id="goal-hover-zone" class="list-hover-zone text-center mt-1">
-          <div id="goal-add-button" class="list-add-btn d-none"><i class="bi bi-plus-circle"></i> 목표 추가</div>
+          <div id="goal-add-button" class="list-add-btn d-none"><i class="bi bi-plus-circle"></i> 규칙 추가</div>
         </div>
       </section>
 
