@@ -40,65 +40,145 @@
       memberInfoDocs.forEach((doc) => {
         let member = doc.data();
         teamMemberListHtml += `
-          <div class="col-12 col-sm-6 col-lg-4 col-xl-2 mb-4">
-            <div class="card h-100 shadow-sm border-0 rounded-3 text-center team-member-card" data-member-id="${member.id}">
-              <img src="${member.imgSrc}" alt="${member.name}" class="card-img-top mx-auto mt-3 rounded-circle border border-primary member-card" style="width: 120px; height: 120px; object-fit: cover" />
-              <div class="card-body">
-                <h5 class="card-title fw-bold text-dark mb-1">${member.name}</h5>
-                <p class="card-text text-info">${member.nutshell}</p>
+              <div class="col-12 col-sm-6 col-lg-4 col-xl-2 mb-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3 text-center team-member-card" data-member-id="${member.id}">
+                  <img src="${member.imgSrc}" alt="${member.name}" class="card-img-top mx-auto mt-3 rounded-circle border border-primary member-card" style="width: 120px; height: 120px; object-fit: cover" />
+                  <div class="card-body">
+                    <h5 class="card-title fw-bold text-dark mb-1">${member.name}</h5>
+                    <p class="card-text text-info">${member.nutshell}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          `;
+              `;
         $("#homeTeamMembersGrid").html(teamMemberListHtml);
-      });
-
-      /*** (Test) 파이어베이스의 TeamGoal, TeamRule을 불러온 뒤 리스트 추가 ***/
-      teamGoalDocs.forEach((doc) => {
-        let fbDoc = doc._key.path.segments[6];
-        let docData = doc.data();
-        $("#team-goal-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-check-circle-fill text-success me-2"></i>${docData.content}</li>`);
-      });
-      teamRuleDocs.forEach((doc) => {
-        let fbDoc = doc._key.path.segments[6];
-        let docData = doc.data();
-        $("#team-rule-list").append(`<li class="mb-2 team-info-list" id=${fbDoc}><i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${docData.content}</li>`);
-      });
-
-      /*** (Test) 규칙, 약속 리스트 클릭 시 제거 ***/
-      $(".team-info-list").click(async function () {
-        let parentId = $(this).parent().attr("id");
-        let listId = $(this).attr("id");
-
-        if (parentId == "team-rule-list") {
-          await deleteDoc(doc(db, "TeamRule", listId));
-        } else if (parentId == "team-goal-list") {
-          await deleteDoc(doc(db, "TeamGoal", listId));
-        }
-
-        $(this).remove();
-      });
-
-      /*** (Test) 파이어베이스 데이터 추가 ***/
-      $("#add-list").click(async function () {
-        let modifiedContent = $("#new-content").val();
-        await setDoc(doc(db, "TeamRule", "new"), {
-          id: 123,
-          content: modifiedContent,
-        });
-      });
-
-      /*** (Test) 파이어베이스 데이터 추가 ***/
-      $("#modify-list").click(async function () {
-        let modifiedContent = $("#new-content").val();
-        await updateDoc(doc(db, "TeamRule", "2s14LVJ2pt5uV7TsKYjn"), {
-          content: modifiedContent,
-        }); // 임시로 정해진 문서의 content 수정
       });
 
       // 멤버 카드 클릭시 name 파라미터와 함께 detail.html로 이동
       $(".member-card").click((e) => {
         location.href = "detail.html?name=" + e.target.alt;
+      });
+
+      // 목표 리스트 렌더링
+      teamGoalDocs.forEach((doc) => {
+        const id = doc.id;
+        const data = doc.data();
+        $("#team-goal-list").append(`
+        <li class="mb-2 team-info-list" id="${id}">
+          <i class="bi bi-check-circle-fill text-success me-2"></i>${data.content}
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${id}" data-type="TeamGoal">수정</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${id}" data-type="TeamGoal">제거</button>
+          </div>
+        </li>
+      `);
+      });
+
+      // 약속 리스트 렌더링
+      teamRuleDocs.forEach((doc) => {
+        const id = doc.id;
+        const data = doc.data();
+        $("#team-rule-list").append(`
+        <li class="mb-2 team-info-list" id="${id}">
+          <i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${data.content}
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${id}" data-type="TeamRule">수정</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${id}" data-type="TeamRule">제거</button>
+          </div>
+        </li>
+      `);
+      });
+
+      // 마우스 진입 시 (+) 버튼 보이기
+      $("#goal-hover-zone").hover(
+        () => $("#goal-add-button").removeClass("d-none"),
+        () => $("#goal-add-button").addClass("d-none")
+      );
+
+      $("#rule-hover-zone").hover(
+        () => $("#rule-add-button").removeClass("d-none"),
+        () => $("#rule-add-button").addClass("d-none")
+      );
+
+      // 추가 버튼 클릭 시
+      $("#goal-add-button").click(async function () {
+        const content = prompt("추가할 팀 목표를 입력하세요:");
+        if (content) {
+          const newDoc = await addDoc(collection(db, "TeamGoal"), { content });
+          $("#team-goal-list").append(`
+          <li class="mb-2 team-info-list" id="${newDoc.id}">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>${content}
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${newDoc.id}" data-type="TeamGoal">수정</button>
+              <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${newDoc.id}" data-type="TeamGoal">제거</button>
+            </div>
+          </li>
+        `);
+        }
+      });
+
+      $("#rule-add-button").click(async function () {
+        const content = prompt("추가할 팀 약속을 입력하세요:");
+        if (content) {
+          const newDoc = await addDoc(collection(db, "TeamRule"), { content });
+          $("#team-rule-list").append(`
+          <li class="mb-2 team-info-list" id="${newDoc.id}">
+            <i class="bi bi-hand-thumbs-up-fill text-warning me-2"></i>${content}
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${newDoc.id}" data-type="TeamRule">수정</button>
+              <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${newDoc.id}" data-type="TeamRule">제거</button>
+            </div>
+          </li>
+        `);
+        }
+      });
+
+      // 삭제
+      $(document).on("click", ".btn-delete", async function () {
+        const id = $(this).data("id");
+        const type = $(this).data("type");
+        await deleteDoc(doc(db, type, id));
+        $(`#${id}`).remove();
+      });
+
+      $(document).on("click", ".btn-edit", function () {
+        const id = $(this).data("id");
+        const type = $(this).data("type");
+        const $li = $(`#${id}`);
+        const current = $li.text().trim();
+        const updated = prompt("수정할 내용을 입력하세요:", current);
+        if (updated) {
+          updateDoc(doc(db, type, id), { content: updated });
+          $li.contents().first()[0].textContent = " " + updated;
+        }
+      });
+
+      // 마우스가 리스트 아래에 진입하면 (+)버튼 보여주기
+      $("#team-goal-list")
+        .parent()
+        .on("mouseenter", function () {
+          $("#add-goal-button").removeClass("d-none");
+        });
+      $("#team-goal-list")
+        .parent()
+        .on("mouseleave", function () {
+          $("#add-goal-button").addClass("d-none");
+        });
+
+      // 추가
+      $("#add-goal-button").click(async function () {
+        const content = prompt("새 항목 내용을 입력하세요:");
+        if (content) {
+          const docRef = await addDoc(collection(db, "TeamGoal"), { content });
+          $("#team-goal-list").append(`
+            <li class="mb-2 team-info-list" id="${docRef.id}">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>${content}
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-outline-primary btn-edit" data-id="${docRef.id}" data-type="TeamGoal">수정</button>
+                <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${docRef.id}" data-type="TeamGoal">제거</button>
+              </div>
+            </li>
+          `);
+        }
       });
     </script>
     <style>
@@ -126,6 +206,63 @@
         color: #0dcaf0;
         margin-bottom: 0;
       }
+
+      .team-info-list {
+        position: relative;
+        padding-right: 120px;
+        transition: background-color 0.2s ease;
+      }
+
+      .team-info-list:hover {
+        background-color: #f8f9fa;
+        padding-right: 100px;
+        transition: background 0.3s ease;
+      }
+
+      .team-info-list:hover {
+        background: #f8f9fa;
+      }
+
+      .action-buttons {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: none;
+        gap: 0.5rem;
+      }
+
+      .team-info-list:hover .action-buttons {
+        display: flex;
+      }
+
+      .list-hover-zone {
+        height: 40px;
+        background-color: transparent;
+      }
+
+      .list-add-btn {
+        cursor: pointer;
+        color: #0d6efd;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .list-add-btn {
+        cursor: pointer;
+        color: #0d6efd;
+        text-align: center;
+        margin-top: 10px;
+        transition: opacity 0.3s ease;
+      }
+
+      .list-add-btn:hover {
+        opacity: 0.7;
+      }
+
+      .team-info-list-container:hover .list-add-btn {
+        opacity: 1;
+      }
     </style>
   </head>
   <body>
@@ -140,7 +277,7 @@
         <nav>
           <ul class="nav">
             <li class="nav-item">
-              <button class="nav-link btn btn-link text-secondary fw-medium nav-link-custom" data-page="home" onclick="location.href='/'">팀 소개 (홈)</button>
+              <button class="nav-link btn btn-link text-secondary fw-medium nav-link-custom" data-page="home" onclick="location.href = 'index.html'">팀 소개 (홈)</button>
             </li>
             <li class="nav-item">
               <button class="nav-link btn btn-link text-secondary fw-medium nav-link-custom" data-page="team" onClick="location.href = 'detail.html'">팀원 소개</button>
@@ -157,14 +294,22 @@
         </p>
       </div>
 
+      <!-- 팀 목표 -->
       <section class="mb-5 p-4 p-md-5 border bg-light rounded-3 text-center" id="teamPromiseSection">
         <h2 class="h3 fw-bold text-dark mb-4">팀 목표</h2>
-        <ul class="list-unstyled text-secondary mx-auto" style="max-width: 800px" id="team-goal-list"></ul>
+        <ul class="list-unstyled text-secondary mx-auto team-info-list-container" style="max-width: 800px" id="team-goal-list"></ul>
+        <div id="goal-hover-zone" class="list-hover-zone text-center mt-1">
+          <div id="goal-add-button" class="list-add-btn d-none"><i class="bi bi-plus-circle"></i> 목표 추가</div>
+        </div>
       </section>
 
+      <!-- 팀 약속 -->
       <section class="mb-5 p-4 p-md-5 border bg-light rounded-3 text-center" id="teamGoalSection">
         <h2 class="h3 fw-bold text-dark mb-4">팀 약속</h2>
-        <ul class="list-unstyled text-secondary mx-auto" style="max-width: 800px" id="team-rule-list"></ul>
+        <ul class="list-unstyled text-secondary mx-auto team-info-list-container" style="max-width: 800px" id="team-rule-list"></ul>
+        <div id="rule-hover-zone" class="list-hover-zone text-center mt-1">
+          <div id="rule-add-button" class="list-add-btn d-none"><i class="bi bi-plus-circle"></i> 약속 추가</div>
+        </div>
       </section>
 
       <section class="mt-5">
@@ -173,8 +318,4 @@
       </section>
     </main>
   </body>
-  <!-- (test) 파이어베이스 데이터 수정, 추가 -->
-  <input type="text" id="new-content" />
-  <button id="add-list">추가하기</button>
-  <button id="modify-list">수정하기</button>
 </html>
