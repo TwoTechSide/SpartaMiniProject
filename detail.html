@@ -1,705 +1,737 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>클래스 부트캠프 팀</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-      import {
-        getFirestore,
-        collection,
-        getDocs,
-        addDoc,
-        where,
-        query,
-        serverTimestamp,
-        orderBy,
-        doc,
-        updateDoc,
-        deleteDoc,
-      } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
 
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-      const firebaseConfig = {
-        apiKey: "AIzaSyAUjCKERRTPH6kcmbW-cyEirSTW6SfivCQ",
-        authDomain: "spartaminiproject-8c1e4.firebaseapp.com",
-        projectId: "spartaminiproject-8c1e4",
-        storageBucket: "spartaminiproject-8c1e4.firebasestorage.app",
-        messagingSenderId: "1006694549228",
-        appId: "1:1006694549228:web:c86739b1a0acdb96d547c9",
-        measurementId: "G-92P7CY7JRK",
-      };
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>클래스 부트캠프 팀</title>
+  <!-- Bootstrap CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, where, query, serverTimestamp, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
 
-      // Firebase 인스턴스 초기화
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-      const db = getFirestore(app);
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUjCKERRTPH6kcmbW-cyEirSTW6SfivCQ",
+      authDomain: "spartaminiproject-8c1e4.firebaseapp.com",
+      projectId: "spartaminiproject-8c1e4",
+      storageBucket: "spartaminiproject-8c1e4.firebasestorage.app",
+      messagingSenderId: "1006694549228",
+      appId: "1:1006694549228:web:c86739b1a0acdb96d547c9",
+      measurementId: "G-92P7CY7JRK",
+    };
 
-      // DB에서 특정 팀원 정보 가져오기
-      // let name = "";
-      // let members = [];
+    // Firebase 인스턴스 초기화
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
 
-      /**
-       * 페이지가 로드되면 Firestore에서 팀원 정보를 가져와 슬라이더에 렌더링합니다.
-       */
-      document.addEventListener("DOMContentLoaded", async () => {
-        const members = await fetchMembers();
-        const selectedName = getNameFromHomeURL();
-        getMember(selectedName, members);
-        renderSlider(members);
-        loadMessages(selectedName);
+    /**
+     * 페이지가 로드되면 Firestore에서 팀원 정보를 가져와 슬라이더에 렌더링합니다.
+     */
+    document.addEventListener("DOMContentLoaded", async () => {
+      const members = await fetchMembers();
+      const selectedName = getNameFromHomeURL();
+      getMember(selectedName, members);
+      renderSlider(members);
+      loadMessages(selectedName);
+    });
+
+    /**
+     * Firestore에서 팀원 정보를 가져옵니다.
+     * @returns {Promise<Array>} 팀원 정보 배열
+     */
+    async function fetchMembers() {
+      const qs = await getDocs(collection(db, "member"));
+      const members = [];
+      qs.forEach((doc) => {
+        members.push(doc.data());
       });
+      return members;
+    }
 
-      /**
-       * Firestore에서 팀원 정보를 가져옵니다.
-       * @returns {Promise<Array>} 팀원 정보 배열
-       */
-      async function fetchMembers() {
-        const qs = await getDocs(collection(db, "member"));
-        const members = [];
-        qs.forEach((doc) => {
-          members.push(doc.data());
-        });
-        return members;
+    async function getMember(selectedName, members) {
+      // javascript array 고차함수인 filter를 사용하여 name과 일치하는 팀원 정보 찾기
+      const member = members.filter((doc) => doc.name === selectedName)[0];
+      if (!member) {
+        alert("멤버를 찾을 수 없습니다.");
+        return;
       }
 
-      async function getMember(selectedName, members) {
-        // javascript array 고차함수인 filter를 사용하여 name과 일치하는 팀원 정보 찾기
-        const member = members.filter((doc) => doc.name === selectedName)[0];
-        if (!member) {
-          alert("멤버를 찾을 수 없습니다.");
-          return;
-        }
+      // HTML 요소에 값 주입
+      $("#member-img").attr("src", member.img);
+      $("#member-name").text(member.name);
+      $("#member-mbti").text(member.mbti);
+      $("#member-greeting").text(member.title);
+      $("#member-skillsHobbies").text(`${member.spec} / ${member.hobby}`);
+      $("#member-strengthsWeaknesses").text(`${member.pros} / ${member.cons}`);
+      $("#member-likesDislikes").text(`${member.like} / ${member.hate}`);
+      $("#member-titleSongInfo").text(member.song);
+      $("#member-titleSongLink").html(`
+          <a href="${member.songUrl}" target="_blank" rel="noopener noreferrer" class="link-primary">
+            유튜브에서 보기
+          </a>
+        `);
+      // 블로그 링크 처리
+      $("#member-blogUrl-container a").attr("href", member.blog).text(member.blog);
+    }
 
-        // HTML 요소에 값 주입
-        $("#member-img").attr("src", member.img);
-        $("#member-name").text(member.name);
-        $("#member-mbti").text(member.mbti);
-        $("#member-greeting").text(member.title);
-        $("#member-skillsHobbies").text(`${member.spec} / ${member.hobby}`);
-        $("#member-strengthsWeaknesses").text(
-          `${member.pros} / ${member.cons}`
-        );
-        $("#member-likesDislikes").text(`${member.like} / ${member.hate}`);
-        $("#member-titleSong").text(member.song);
-        // 블로그 링크 처리
-        $("#member-blogUrl-container a")
-          .attr("href", member.blog)
-          .text(member.blog);
-      }
-
-      /**
-       * 슬라이더에 팀원 정보를 렌더링합니다.
-       * @param {Array} members - 팀원 정보 배열
-       */
-      function renderSlider(members) {
-        const slider = document.getElementById("teamMemberSlider");
-        slider.innerHTML = "";
-        members.forEach((member) => {
-          const item = document.createElement("div");
-          item.className = "slider-item";
-          item.innerHTML = `
+    /**
+     * 슬라이더에 팀원 정보를 렌더링합니다.
+     * @param {Array} members - 팀원 정보 배열
+     */
+    function renderSlider(members) {
+      const slider = document.getElementById("teamMemberSlider");
+      slider.innerHTML = "";
+      members.forEach((member) => {
+        const item = document.createElement("div");
+        item.className = "slider-item";
+        item.innerHTML = `
             <img src="${member.img}" alt="${member.name}" class="slider-img" />
             <div class="slider-name">${member.name}</div>
             <div class="slider-role">${member.mbti}</div>
           `;
 
-          // 클릭 이벤트 리스너 추가
-          item.addEventListener("click", () => {
-            getMember(member.name, members);
-            loadMessages(member.name);
-            history.replaceState(
-              null,
-              "",
-              `?name=${encodeURIComponent(member.name)}`
-            );
-          });
-
-          slider.appendChild(item);
+        // 클릭 이벤트 리스너 추가
+        item.addEventListener("click", () => {
+          getMember(member.name, members);
+          loadMessages(member.name);
+          history.replaceState(null, "", `?name=${encodeURIComponent(member.name)}`);
         });
-      }
 
-      /**
-       * URL에서 name 파라미터를 가져옵니다.
-       * @returns {string} 이름
-       */
-      function getNameFromHomeURL() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get("name") || "박신희"; // 기본값 설정
-      }
+        slider.appendChild(item);
+      });
+    }
 
-      //-----------------------------------------------------------------------------
+    /**
+     * URL에서 name 파라미터를 가져옵니다.
+     * @returns {string} 이름
+     */
+    function getNameFromHomeURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("name") || "박신희"; // 기본값 설정
+    }
 
-      async function loadMessages(selectedName) {
-        const messagesList = document.getElementById("messagesList");
-        messagesList.innerHTML = "";
+    //-----------------------------------------------------------------------------
 
-        const q = query(
-          collection(db, "guestbook"),
-          where("to", "==", selectedName),
-          orderBy("createdAt", "desc")
-        );
+    async function loadMessages(selectedName) {
+      const messagesList = document.getElementById("messagesList");
+      messagesList.innerHTML = "";
 
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const li = document.createElement("li");
-          li.classList.add("guest-li");
-          li.innerHTML = `
+      const q = query(collection(db, "guestbook"), where("to", "==", selectedName), orderBy("createdAt", "desc"));
+
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const li = document.createElement("li");
+        li.classList.add("guest-li");
+        li.innerHTML = `
             <strong>${data.guestName || "익명"}</strong><br>
             <span class="msg-text">${data.guestMessage || ""}</span>
             <button class="editBtn" data-id="${doc.id}">수정</button>
             <button class="deleteBtn" data-id="${doc.id}">삭제</button>
         `;
-          messagesList.appendChild(li);
-        });
-      }
-
-      document
-        .getElementById("wrght")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          const guestName = document.getElementById("guestName_i").value.trim();
-          const guestMessage = document
-            .getElementById("guestMessage_i")
-            .value.trim();
-          const editId = this.getAttribute("data-edit-id");
-
-          if (guestName.length < 1) {
-            alert("이름을 입력해주세요.");
-            return;
-          }
-          if (guestMessage.length < 1) {
-            alert("메시지를 입력해주세요.");
-            return;
-          }
-
-          const selectedName = getNameFromHomeURL();
-          if (editId) {
-            await updateDoc(doc(db, "guestbook", editId), {
-              guestName: guestName,
-              guestMessage: guestMessage,
-              to: selectedName,
-            });
-            this.removeAttribute("data-edit-id");
-            document.getElementById("guestSubmit_i").textContent = "등록";
-          } else {
-            await addDoc(collection(db, "guestbook"), {
-              guestName,
-              guestMessage,
-              to: selectedName,
-              createdAt: serverTimestamp(),
-            });
-          }
-          document.getElementById("guestName_i").value = "";
-          document.getElementById("guestMessage_i").value = "";
-          document.getElementById("cancelEdit_i").style.display = "none";
-          loadMessages(selectedName);
-        });
-
-      document
-        .getElementById("messagesList")
-        .addEventListener("click", async function (e) {
-          if (e.target.classList.contains("editBtn")) {
-            const docId = e.target.getAttribute("data-id");
-            const li = e.target.closest("li");
-            const name = li.querySelector("strong").innerText;
-            const msg = li.querySelector(".msg-text").innerText;
-            document.getElementById("guestName_i").value = name;
-            document.getElementById("guestMessage_i").value = msg;
-            document
-              .getElementById("wrght")
-              .setAttribute("data-edit-id", docId);
-            document.getElementById("guestSubmit_i").textContent = "수정";
-            document.getElementById("cancelEdit_i").style.display = "inline";
-          } else if (e.target.classList.contains("deleteBtn")) {
-            const docId = e.target.getAttribute("data-id");
-            if (confirm("정말 삭제하시겠습니까?")) {
-              await deleteDoc(doc(db, "guestbook", docId));
-              loadMessages(getNameFromHomeURL());
-            }
-          }
-        });
-      document.getElementById("cancelEdit_i").addEventListener("click", function (e) {
-        e.preventDefault();
-        document.getElementById("guestName_i").value = "";
-        document.getElementById("guestMessage_i").value = "";
-        document.getElementById("wrght").removeAttribute("data-edit-id");
-        document.getElementById("guestSubmit_i").textContent = "등록";
-        this.style.display = "none";
+        messagesList.appendChild(li);
       });
-    </script>
-    <style>
-      body {
-        min-height: 100vh;
-        background: #f8f9fa;
-        margin: 0;
-        font-family: "Pretendard", "Noto Sans KR", Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
+    }
+
+    document.getElementById("wrght").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const guestName = document.getElementById("guestName_i").value.trim();
+      const guestMessage = document.getElementById("guestMessage_i").value.trim();
+      const editId = this.getAttribute("data-edit-id");
+
+      if (guestName.length < 1) {
+        alert("이름을 입력해주세요.");
+        return;
       }
-      main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      if (guestMessage.length < 1) {
+        alert("메시지를 입력해주세요.");
+        return;
       }
+
+      const selectedName = getNameFromHomeURL();
+      if (editId) {
+        await updateDoc(doc(db, "guestbook", editId), {
+          guestName: guestName,
+          guestMessage: guestMessage,
+          to: selectedName,
+        });
+        this.removeAttribute("data-edit-id");
+        document.getElementById("guestSubmit_i").textContent = "등록";
+        document.getElementById("cancelEdit_i").style.display = "none";
+      } else {
+        await addDoc(collection(db, "guestbook"), {
+          guestName,
+          guestMessage,
+          to: selectedName,
+          createdAt: serverTimestamp(),
+        });
+      }
+      document.getElementById("guestName_i").value = "";
+      document.getElementById("guestMessage_i").value = "";
+      document.getElementById("cancelEdit_i").style.display = "none";
+      loadMessages(selectedName);
+    });
+
+    document
+      .getElementById("messagesList")
+      .addEventListener("click", async function (e) {
+        if (e.target.classList.contains("editBtn")) {
+          const docId = e.target.getAttribute("data-id");
+          const li = e.target.closest("li");
+          const name = li.querySelector("strong").innerText;
+          const msg = li.querySelector(".msg-text").innerText;
+          document.getElementById("guestName_i").value = name;
+          document.getElementById("guestMessage_i").value = msg;
+          document
+            .getElementById("wrght")
+            .setAttribute("data-edit-id", docId);
+          document.getElementById("guestSubmit_i").textContent = "수정";
+          document.getElementById("cancelEdit_i").style.display = "inline";
+        } else if (e.target.classList.contains("deleteBtn")) {
+          const docId = e.target.getAttribute("data-id");
+          if (confirm("정말 삭제하시겠습니까?")) {
+            await deleteDoc(doc(db, "guestbook", docId));
+            loadMessages(getNameFromHomeURL());
+          }
+        }
+      });
+    document.getElementById("cancelEdit_i").addEventListener("click", function () {
+      document.getElementById("guestName_i").value = "";
+      document.getElementById("guestMessage_i").value = "";
+      document.getElementById("wrght").removeAttribute("data-edit-id");
+      document.getElementById("guestSubmit_i").style.display = "등록";
+      this.style.display = "none";
+    });
+  </script>
+  <style>
+    body {
+      min-height: 100vh;
+      background: #f8f9fa;
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-section {
+      background: #fff;
+      padding: 2rem 1rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+      margin: 2rem 0;
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .display-5 {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #22223b;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 1.2rem;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      padding: 2rem;
+      border: none;
+      margin-bottom: 2rem;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .col-img {
+      flex: 0 0 200px;
+      text-align: center;
+    }
+
+    .col-info {
+      flex: 1 1 300px;
+    }
+
+    .rounded-circle {
+      border-radius: 50%;
+    }
+
+    .border-primary {
+      border: 4px solid #4361ee;
+    }
+
+    .shadow-sm {
+      box-shadow: 0 1px 6px rgba(67, 97, 238, 0.08);
+    }
+
+    .display-6 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4361ee;
+      margin-bottom: 0.5rem;
+    }
+
+    .fs-5 {
+      font-size: 1.1rem;
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-card {
+      background: #f8f9fa;
+      border-radius: 0.8rem;
+      padding: 1rem;
+      min-height: 80px;
+    }
+
+    .fw-semibold {
+      font-weight: 600;
+    }
+
+    .text-info {
+      color: #4895ef;
+      margin-bottom: 0.3rem;
+    }
+
+    .text-dark {
+      color: #22223b;
+    }
+
+    .text-secondary {
+      color: #868e96;
+    }
+
+    .link-primary {
+      color: #4361ee;
+      text-decoration: underline;
+    }
+
+    .mt-2 {
+      margin-top: 0.5rem;
+    }
+
+    .mt-4 {
+      margin-top: 1.5rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1.5rem;
+    }
+
+    .mb-5 {
+      margin-bottom: 2rem;
+    }
+
+    .fw-bold {
+      font-weight: bold;
+    }
+
+    .fw-medium {
+      font-weight: 500;
+    }
+
+    /* 슬라이더 */
+    .slider-section {
+      width: 100%;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      border: 1px solid #e9ecef;
+      background: #f8f9fa;
+      border-radius: 1rem;
+    }
+
+    .slider-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #22223b;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .slider {
+      display: flex;
+      overflow-x: auto;
+      gap: 1.2rem;
+      padding-bottom: 1rem;
+      scrollbar-width: thin;
+      justify-content: center;
+      /* 가운데 정렬 추가 */
+    }
+
+    .slider::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .slider::-webkit-scrollbar-thumb {
+      background: #dee2e6;
+      border-radius: 4px;
+    }
+
+    .slider-item {
+      min-width: 120px;
+      background: #fff;
+      border-radius: 0.8rem;
+      box-shadow: 0 1px 6px rgba(67, 97, 238, 0.07);
+      padding: 1rem 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .slider-item:hover {
+      box-shadow: 0 4px 16px rgba(67, 97, 238, 0.13);
+    }
+
+    .slider-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #4895ef;
+      margin-bottom: 0.5rem;
+    }
+
+    .slider-name {
+      font-weight: bold;
+      color: #22223b;
+      margin-bottom: 0.2rem;
+      font-size: 1rem;
+    }
+
+    .slider-role {
+      color: #868e96;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 700px) {
       .page-section {
-        background: #fff;
-        padding: 2rem 1rem;
-        border-radius: 1.5rem;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
-        margin: 2rem 0;
-        width: 100%;
-        max-width: 900px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding: 1rem 0.2rem;
       }
-      .display-5 {
-        font-size: 2.2rem;
-        font-weight: bold;
-        color: #22223b;
-        margin-bottom: 2rem;
-        text-align: center;
-      }
+
       .card {
-        background: #fff;
-        border-radius: 1.2rem;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        padding: 2rem;
-        border: none;
-        margin-bottom: 2rem;
-      }
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 2rem;
-        align-items: center;
-      }
-      .col-img {
-        flex: 0 0 200px;
-        text-align: center;
-      }
-      .col-info {
-        flex: 1 1 300px;
-      }
-      .rounded-circle {
-        border-radius: 50%;
-      }
-      .border-primary {
-        border: 4px solid #4361ee;
-      }
-      .shadow-sm {
-        box-shadow: 0 1px 6px rgba(67, 97, 238, 0.08);
-      }
-      .display-6 {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #4361ee;
-        margin-bottom: 0.5rem;
-      }
-      .fs-5 {
-        font-size: 1.1rem;
-        color: #495057;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-      }
-      .info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-      .info-card {
-        background: #f8f9fa;
-        border-radius: 0.8rem;
         padding: 1rem;
-        min-height: 80px;
       }
-      .fw-semibold {
-        font-weight: 600;
-      }
-      .text-info {
-        color: #4895ef;
-        margin-bottom: 0.3rem;
-      }
-      .text-dark {
-        color: #22223b;
-      }
-      .text-secondary {
-        color: #868e96;
-      }
-      .link-primary {
-        color: #4361ee;
-        text-decoration: underline;
-      }
-      .mt-2 {
-        margin-top: 0.5rem;
-      }
-      .mt-4 {
-        margin-top: 1.5rem;
-      }
-      .mb-4 {
-        margin-bottom: 1.5rem;
-      }
-      .mb-5 {
-        margin-bottom: 2rem;
-      }
-      .fw-bold {
-        font-weight: bold;
-      }
-      .fw-medium {
-        font-weight: 500;
-      }
-      /* 슬라이더 */
-      .slider-section {
-        width: 100%;
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        border: 1px solid #e9ecef;
-        background: #f8f9fa;
-        border-radius: 1rem;
-      }
-      .slider-title {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #22223b;
-        margin-bottom: 1rem;
-        text-align: center;
-      }
-      .slider {
-        display: flex;
-        overflow-x: auto;
-        gap: 1.2rem;
-        padding-bottom: 1rem;
-        scrollbar-width: thin;
-      }
-      .slider::-webkit-scrollbar {
-        height: 8px;
-      }
-      .slider::-webkit-scrollbar-thumb {
-        background: #dee2e6;
-        border-radius: 4px;
-      }
-      .slider-item {
-        min-width: 120px;
-        background: #fff;
-        border-radius: 0.8rem;
-        box-shadow: 0 1px 6px rgba(67, 97, 238, 0.07);
-        padding: 1rem 0.5rem;
-        text-align: center;
-        cursor: pointer;
-        transition: box-shadow 0.2s;
-        display: flex;
+
+      .row {
         flex-direction: column;
-        align-items: center;
-      }
-      .slider-item:hover {
-        box-shadow: 0 4px 16px rgba(67, 97, 238, 0.13);
-      }
-      .slider-img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 2px solid #4895ef;
-        margin-bottom: 0.5rem;
-      }
-      .slider-name {
-        font-weight: bold;
-        color: #22223b;
-        margin-bottom: 0.2rem;
-        font-size: 1rem;
-      }
-      .slider-role {
-        color: #868e96;
-        font-size: 0.95rem;
-      }
-      @media (max-width: 700px) {
-        .page-section {
-          padding: 1rem 0.2rem;
-        }
-        .card {
-          padding: 1rem;
-        }
-        .row {
-          flex-direction: column;
-          gap: 1rem;
-        }
-        .info-grid {
-          grid-template-columns: 1fr;
-        }
+        gap: 1rem;
       }
 
-      .guest-li {
-        background: #f4f6fb;
-        border-radius: 8px;
-        margin-bottom: 12px;
-        padding: 14px;
+      .info-grid {
+        grid-template-columns: 1fr;
       }
+    }
 
-      .main-container {
-        max-width: 1200px;
-        margin: 40px auto;
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-        padding: 32px 28px 28px 28px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
+    .guest-li {
+      background: #f4f6fb;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 14px;
+    }
 
-      .title {
-        font-size: 2rem;
-        font-weight: bold;
-        margin-bottom: 18px;
-        color: #333;
-        align-items: center;
-      }
+    .main-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 32px 28px 28px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-      .subtitle {
-        max-width: 1000px;
-        margin: 40px auto;
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-        padding: 32px 28px 28px 28px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
+    .title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 18px;
+      color: #333;
+      align-items: center;
+    }
 
-      .label {
-        font-size: 1rem;
-        margin-bottom: 6px;
-        color: #555;
-        align-self: center;
-        align-items: center;
-      }
+    .subtitle {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 32px 28px 28px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .guestName,
-      .guestMessage {
-        width: 100%;
-        border: 1px solid #d1d5db;
-        border-radius: 7px;
-        padding: 10px;
-        margin-bottom: 18px;
-        font-size: 1rem;
-        background: #fafbfc;
-        transition: border 0.2s;
-      }
+    .label {
+      font-size: 1rem;
+      margin-bottom: 6px;
+      color: #555;
+      align-self: center;
+      align-items: center;
+    }
 
-      .guestName:focus,
-      .guestMessage:focus {
-        border: 1.5px solid #7c3aed;
-        outline: none;
-        align-items: center;
-      }
+    .guestName,
+    .guestMessage {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      padding: 10px;
+      margin-bottom: 18px;
+      font-size: 1rem;
+      background: #fafbfc;
+      transition: border 0.2s;
+    }
 
-      .guestName {
-        width: 700px;
-        border: 1px solid #d1d5db;
-        border-radius: 7px;
-        padding: 10px;
-        margin-bottom: 18px;
-        font-size: 1rem;
-        background: #fafbfc;
-        transition: border 0.2s;
-        margin: 40px auto;
-      }
+    .guestName:focus,
+    .guestMessage:focus {
+      border: 1.5px solid #7c3aed;
+      outline: none;
+      align-items: center;
+    }
 
-      .guestMessage {
-        width: 700px;
-        height: 100px;
-        border: 1px solid #d1d5db;
-        border-radius: 7px;
-        padding: 10px;
-        margin-bottom: 18px;
-        font-size: 1rem;
-        background: #fafbfc;
-        transition: border 0.2s;
-        margin: 40px auto;
-      }
+    .guestName {
+      width: 700px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      padding: 10px;
+      margin-bottom: 18px;
+      font-size: 1rem;
+      background: #fafbfc;
+      transition: border 0.2s;
+      margin: 40px auto;
+    }
 
-      .guestSubmit {
-        width: 15%;
-        background: #5b94ff;
-        color: #fff;
-        border: none;
-        border-radius: 7px;
-        padding: 12px 0;
-        font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
-        align-items: center;
-        display: block;
-        margin: 0 auto;
-      }
+    .guestMessage {
+      width: 700px;
+      height: 100px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      padding: 10px;
+      margin-bottom: 18px;
+      font-size: 1rem;
+      background: #fafbfc;
+      transition: border 0.2s;
+      margin: 40px auto;
+    }
 
-      .guestSubmit:hover {
-        background: #5196ff;
-      }
+    .guestSubmit,
+    .cancelEdit_i {
+      width: auto;
+      padding: 10px 20px;
+      background: #5b94ff;
+      color: #fff;
+      border: 2px solid white;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-      .editBtn {
-        background: transparent;
-        border: none;
-        color: #5b94ff;
-        cursor: pointer;
-        font-size: 1rem;
-        padding: 2px 8px;
-        transition: color 0.2s;
-      }
+    .guestSubmit:hover {
+      background: #5196ff;
+    }
 
-      .editBtn:hover {
-        color: #003e9c;
-        text-decoration: underline;
-      }
+    .editBtn {
+      background: transparent;
+      border: none;
+      color: #5b94ff;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 8px;
+      transition: color 0.2s;
+    }
 
-      .deleteBtn {
-        background: transparent;
-        border: none;
-        color: #ff4d4f;
-        cursor: pointer;
-        font-size: 1rem;
-        padding: 2px 8px;
-        transition: color 0.2s;
-      }
+    .editBtn:hover {
+      color: #003e9c;
+      text-decoration: underline;
+    }
 
-      .deleteBtn:hover {
-        color: #b30000;
-        text-decoration: underline;
-      }
+    .deleteBtn {
+      background: transparent;
+      border: none;
+      color: #ff4d4f;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 8px;
+      transition: color 0.2s;
+    }
 
-      .guestSection {
-        background: #f7f7fa;
-        font-family: "Segoe UI", sans-serif;
-        margin: 0;
-        padding: 0;
-        align-items: center;
-      }
-    </style>
-  </head>
+    .deleteBtn:hover {
+      color: #b30000;
+      text-decoration: underline;
+    }
 
-  <body>
-    <main>
-      <section class="page-section">
-        <h2 class="display-5">팀원 소개</h2>
-        <div
-          id="teamMemberDetailSection"
-          style="width: 100%; margin-bottom: 2rem"
-        >
-          <div id="memberDetailContainer" class="card">
-            <div class="row">
-              <div class="col-img">
-                <img
-                  id="member-img"
-                  src=""
-                  alt=""
-                  class="rounded-circle border-primary shadow-sm"
-                  style="width: 200px; height: 200px; object-fit: cover"
-                />
+    .guestSection {
+      background: #f7f7fa;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+    }
+
+    .btn-low {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+      align-items: center;
+    }
+
+    .guestSubmit {
+      background-color: #5b94ff;
+      color: white;
+    }
+
+    .cancelEdit_i {
+      background-color: #ddd;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="bg-white shadow-sm p-3 mb-4 rounded-bottom-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center cursor-pointer" id="homeLink">
+        <svg class="me-2 text-primary" width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+          </path>
+        </svg>
+        <span class="fs-4 fw-bold text-dark">클래스 팀</span>
+      </div>
+      <nav>
+        <ul class="nav">
+          <li class="nav-item">
+            <button class="nav-link btn btn-link text-secondary fw-medium nav-link-custom" data-page="home"
+              onclick="location.href='index.html'">팀 소개 (홈)</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link btn btn-link text-secondary fw-medium nav-link-custom" data-page="team"
+              onClick="location.href = 'detail.html'">팀원 소개</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-section">
+      <h2 class="display-5">팀원 소개</h2>
+      <div id="teamMemberDetailSection" style="width: 100%; margin-bottom: 2rem">
+        <div id="memberDetailContainer" class="card">
+          <div class="row">
+            <div class="col-img">
+              <img id="member-img" src="" alt="" class="rounded-circle border-primary shadow-sm"
+                style="width: 200px; height: 200px; object-fit: cover" />
+            </div>
+            <div class="col-info">
+              <h3 id="member-name" class="display-6"></h3>
+              <p id="member-role" class="fs-5"></p>
+              <div class="info-grid">
+                <div class="info-card">
+                  <p class="fw-semibold text-info">MBTI</p>
+                  <p class="text-dark" id="member-mbti"></p>
+                </div>
+                <div class="info-card">
+                  <p class="fw-semibold text-info">한마디</p>
+                  <p class="text-dark" id="member-greeting"></p>
+                </div>
+                <div class="info-card">
+                  <p class="fw-semibold text-info">특기와 취미</p>
+                  <p class="text-dark" id="member-skillsHobbies"></p>
+                </div>
+                <div class="info-card">
+                  <p class="fw-semibold text-info">장점과 단점</p>
+                  <p class="text-dark" id="member-strengthsWeaknesses"></p>
+                </div>
+                <div class="info-card">
+                  <p class="fw-semibold text-info">좋아하는 것과 싫어하는 것</p>
+                  <p class="text-dark" id="member-likesDislikes"></p>
+                </div>
+                <div class="info-card">
+                  <p class="fw-semibold text-info">타이틀 노래</p>
+                  <p class="text-dark" id="member-titleSongInfo"></p>
+                  <p class="text-dark" id="member-titleSongLink"></p>
+                </div>
               </div>
-              <div class="col-info">
-                <h3 id="member-name" class="display-6"></h3>
-                <p id="member-role" class="fs-5"></p>
-                <div class="info-grid">
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">MBTI</p>
-                    <p class="text-dark" id="member-mbti"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">한마디</p>
-                    <p class="text-dark" id="member-greeting"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">특기와 취미</p>
-                    <p class="text-dark" id="member-skillsHobbies"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">장점과 단점</p>
-                    <p class="text-dark" id="member-strengthsWeaknesses"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">
-                      좋아하는 것과 싫어하는 것
-                    </p>
-                    <p class="text-dark" id="member-likesDislikes"></p>
-                  </div>
-                  <div class="info-card">
-                    <p class="fw-semibold text-info">타이틀 노래</p>
-                    <p class="text-dark" id="member-titleSong"></p>
-                  </div>
-                </div>
-                <div id="member-blogUrl-container" class="text-secondary mt-4">
-                  <strong class="fw-medium">개인 블로그: </strong>
-                  <a
-                    id="member-blogUrl"
-                    href=""
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="link-primary"
-                  ></a>
-                </div>
+              <div id="member-blogUrl-container" class="text-secondary mt-4">
+                <strong class="fw-medium">개인 블로그: </strong>
+                <a id="member-blogUrl" href="" target="_blank" rel="noopener noreferrer" class="link-primary"></a>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 팀원 슬라이더 섹션 -->
-        <section class="slider-section">
-          <h3 class="slider-title">다른 팀원 보기</h3>
-          <div class="slider" id="teamMemberSlider">
-            <!-- 팀원 슬라이더의 항목들은 동적으로 추가 -->
-          </div>
-        </section>
-      </section>
-
-      <!-- 방명록 섹션-->
-      <section class="guestSection">
-        <div class="main-container">
-          <div class="title">응원의 메시지</div>
-          <div class="subtitle">
-            메시지를 남겨주세요!
-            <form id="wrght" class="wrght" autocomplete="off">
-              <div class="label">이름</div>
-              <input
-                type="text"
-                id="guestName_i"
-                name="guestName"
-                placeholder="이름을 입력하세요"
-                class="guestName"
-              /><br />
-              <div class="label">내용</div>
-              <textarea
-                id="guestMessage_i"
-                name="guestMessage"
-                placeholder="메시지를 입력하세요"
-                class="guestMessage"
-              ></textarea
-              ><br />
-              <button type="submit" id="guestSubmit_i" class="guestSubmit">
-                등록
-              </button>
-              <button type="button" id="cancelEdit_i" class="guestSubmit" style="display: none;">
-                수정 취소
-              </button>
-            </form>
-          </div>
-          <div
-            id="messagesContainer"
-            style="width: 700px; margin: 40px auto 0 auto"
-          >
-            <h3 style="color: #333; margin-bottom: 16px">응원의 말</h3>
-            <ul id="messagesList" style="list-style: none; padding: 0"></ul>
-          </div>
+      <!-- 팀원 슬라이더 섹션 -->
+      <section class="slider-section">
+        <h3 class="slider-title">다른 팀원 보기</h3>
+        <div class="slider" id="teamMemberSlider">
+          <!-- 팀원 슬라이더의 항목들은 동적으로 추가 -->
         </div>
       </section>
-    </main>
-  </body>
+    </section>
+
+    <!-- 방명록 섹션-->
+    <section class="guestSection">
+      <div class="main-container">
+        <div class="title">응원의 메시지</div>
+        <div class="subtitle">
+          메시지를 남겨주세요!
+          <form id="wrght" class="wrght" autocomplete="off">
+            <div class="label">이름</div>
+            <input type="text" id="guestName_i" name="guestName" placeholder="이름을 입력하세요" class="guestName" /><br />
+            <div class="label">내용</div>
+            <textarea id="guestMessage_i" name="guestMessage" placeholder="메시지를 입력하세요" class="guestMessage">
+              </textarea>
+            <br />
+            <div class="btn-low" id="btn-low">
+              <button type="submit" id="guestSubmit_i" class="guestSubmit">등록</button>
+              <button type="button" id="cancelEdit_i" class="cancelEdit_i" style="display: none">취소</button>
+            </div>
+          </form>
+        </div>
+        <div id="messagesContainer" style="width: 700px; margin: 40px auto 0 auto">
+          <h3 style="color: #333; margin-bottom: 16px">응원의 말</h3>
+          <ul id="messagesList" style="list-style: none; padding: 0"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+
 </html>
