@@ -196,6 +196,7 @@
           }
           document.getElementById("guestName_i").value = "";
           document.getElementById("guestMessage_i").value = "";
+          document.getElementById("cancelEdit_i").style.display = "none";
           loadMessages(selectedName);
         });
 
@@ -213,6 +214,7 @@
               .getElementById("wrght")
               .setAttribute("data-edit-id", docId);
             document.getElementById("guestSubmit_i").textContent = "수정";
+            document.getElementById("cancelEdit_i").style.display = "inline";
           } else if (e.target.classList.contains("deleteBtn")) {
             const docId = e.target.getAttribute("data-id");
             if (confirm("정말 삭제하시겠습니까?")) {
@@ -221,6 +223,14 @@
             }
           }
         });
+      document.getElementById("cancelEdit_i").addEventListener("click", function (e) {
+        e.preventDefault();
+        document.getElementById("guestName_i").value = "";
+        document.getElementById("guestMessage_i").value = "";
+        document.getElementById("wrght").removeAttribute("data-edit-id");
+        document.getElementById("guestSubmit_i").textContent = "등록";
+        this.style.display = "none";
+      });
     </script>
     <style>
       body {
@@ -675,6 +685,9 @@
               ><br />
               <button type="submit" id="guestSubmit_i" class="guestSubmit">
                 등록
+              </button>
+              <button type="button" id="cancelEdit_i" class="guestSubmit" style="display: none;">
+                수정 취소
               </button>
             </form>
           </div>
